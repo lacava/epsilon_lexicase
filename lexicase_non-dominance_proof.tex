@@ -1,0 +1,83 @@
+\documentclass{article}
+%\renewcommand{\rmdefault}{ppl}
+%\usepackage{personal}
+\usepackage{graphicx}
+\usepackage{placeins}
+
+\usepackage{amsmath}
+\usepackage{wasysym}
+\usepackage{amssymb}
+
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\usepackage{booktabs}
+\usepackage{tabularx}
+%\usepackage[font=small]{caption}
+%\usepackage[strings]{underscore}
+%\usepackage{subfigure}
+\usepackage{color}
+\usepackage{floatflt}
+\usepackage[table]{xcolor}
+\definecolor{Gray}{gray}{0.9}
+%\usepackage[boxed]{algorithm2e}
+%\usepackage{lmacro}
+%\topmargin=-0.5in\usepackage[table]{xcolor}
+\definecolor{White}{rgb}{1,1,1}
+\definecolor{Gray}{gray}{0.9}
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+\usepackage{soul}
+\usepackage{sidecap}
+\graphicspath{{./Figures/}}
+%\usepackage[margin=1.2in]{geometry}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,
+citecolor=blue,
+linkcolor=black,
+urlcolor=black}
+
+\usepackage{algorithm,algorithmicx}
+\usepackage[noend]{algpseudocode}
+\newcommand*\DNA{\textsc{dna}}
+
+\newcommand*\Let[2]{\State #1 $\gets$ #2}
+\algrenewcommand\algorithmicrequire{\textbf{Precondition:}}
+\algrenewcommand\algorithmicensure{\textbf{Postcondition:}}
+%\usepackage{fontspec}
+%\setmainfont{Hoefler Text}
+%\newcommand*\DNA{\textsc{dna}}
+%
+%\newcommand*\Let[2]{\State #1 $\gets$ #2}
+%\algrenewcommand\alglinenumber[1]{
+%    {\sf\footnotesize\addfontfeatures{Colour=888888,Numbers=Monospaced}#1}}
+%\algrenewcommand\algorithmicrequire{\textbf{Precondition:}}
+%\algrenewcommand\algorithmicensure{\textbf{Postcondition:}}
+
+\title{{\bf \huge $\epsilon$}-Lexicase selection: a probabilistic and multi-objective analysis of lexicase selection and with continuous valued problems}
+\author{William La Cava, Lee Spector, Jason Moore}
+
+\date{December 2016}
+
+
+\begin{document}
+\noindent $\mathcal{N} = \{n_i\}_{i=1}^N$: population \\
+$\mathcal{T} = \{t_i\}_{i=1}^T$: training cases\\
+$e_j(n)$: error on $t_j$ for individual $n$ 
+
+
+\noindent Here we define Pareto dominance relations with respect to the training cases. 
+
+\medskip
+\noindent {\bf Definition:} $n_1$ dominates $n_2$, i.e., ${n_1} \prec {n_2}$, if $e_j(n_1) \leq e_j(n_2) \;
+\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,N\}$ for which $e_j(n_1) < e_j(n_2)$. \bigskip
+\bigskip
+
+\noindent \textbf{Theorem 1:} Individuals selected by lexicase selection are non-dominated in $\mathcal{N}$ with respect to the training cases $\mathcal{T}$. 
+\medskip
+
+\noindent \textbf{Proof:} Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by lexicase selection. Suppose $n_1 \prec n_2$. Then $e_j(n_1) \leq e_j(n_2) \;
+\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,N\}$ for which $e_j(n_1) < e_j(n_2)$. Therefore $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ for which $n_2$ is removed from selection due to $n_1$. Therefore $n_2$ cannot be selected by lexicase selection, the supposition is false, and the theorem is true. 
+
+
+\end{document}
