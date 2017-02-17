@@ -54,8 +54,8 @@ urlcolor=black}
 %\algrenewcommand\algorithmicrequire{\textbf{Precondition:}}
 %\algrenewcommand\algorithmicensure{\textbf{Postcondition:}}
 
-\title{{\bf \huge $\epsilon$}-Lexicase selection: a probabilistic and multi-objective analysis of lexicase selection and with continuous valued problems}
-\author{William La Cava, Lee Spector, Jason Moore}
+\title{{\bf \huge $\epsilon$}-Lexicase selection: a probabilistic and multi-objective analysis of lexicase selection in continuous domains}
+%\author{William La Cava, Lee Spector, Jason Moore}
 
 \date{December 2016}
 
@@ -100,12 +100,14 @@ urlcolor=black}
 
 \maketitle
 \begin{abstract}
-Lexicase selection is a parent selection method that considers test cases separately, rather than in aggregate, when performing parent selection. As opposed to previous work that has demonstrated the ability of lexicase selection to solve difficult problems, the goal of this paper is to develop the theoretical underpinnings that explain its performance. To this end, we derive an analytical formula that gives the expected probabilities of selection under lexicase selection, given a population and its behavior. In addition, we expand upon the relation of lexicase selection to many-objective optimization methods to show the effect of lexicase, which is to select individuals on the boundaries of Pareto fronts in high-dimensional space. We show analytically why lexicase selection performs more poorly for certain sizes of population and training cases, and why it has been shown to perform more poorly in continuous error spaces. To addres this last concern, we introduce $\epsilon$-lexicase selection, which modifies the pass condition defined in lexicase selection to allow near-elite individuals to pass cases, thereby improving selection performance. We show that $\epsilon$-lexicase outperforms several diversity-maintenance strategies for regression problems.
+Lexicase selection is a parent selection method that considers test cases separately, rather than in aggregate, when performing parent selection. As opposed to previous work that has demonstrated the ability of lexicase selection to solve difficult problems, the goal of this paper is to develop the theoretical underpinnings that explain its performance. To this end, we derive an analytical formula that gives the expected probabilities of selection under lexicase selection, given a population and its behavior. In addition, we expand upon the relation of lexicase selection to many-objective optimization methods to show the effect of lexicase, which is to select individuals on the boundaries of Pareto fronts in high-dimensional space. We show analytically why lexicase selection performs more poorly for certain sizes of population and training cases, and why it has been shown to perform more poorly in continuous error spaces. To addres this last concern, we introduce $\epsilon$-lexicase selection, which modifies the pass condition defined in lexicase selection to allow near-elite individuals to pass cases, thereby improving selection performance. We show that $\epsilon$-lexicase outperforms several diversity-maintenance strategies for problems from three continuous-valued domains: regression, dynamical systems, and program synthesis.
 \end{abstract}
 
 
 \section{INTRODUCTION}
   
+\noindent $\mathcal{N} = \{n_i\}_{i=1}^N$: population \\
+$\mathcal{T} = \{t_i\}_{i=1}^T$: training cases\\
 
 \section{Lexicase Selection}\label{s:2}
 Lexicase selection is a parent selection technique based on lexicographic ordering of test (i.e. fitness) cases.  Each parent selection event proceeds as follows: 
@@ -118,6 +120,7 @@ Lexicase selection is a parent selection technique based on lexicographic orderi
 \end{enumerate}
 
 The lexicase selection algorithm for a single selection event is presented below: 
+
 \noindent{\footnotesize
 \begin{tabularx}{\textwidth}{lX}
 \multicolumn{2}{c}{\textbf{Lexicase Selection}} \\ 
@@ -162,7 +165,24 @@ The lexicase selection algorithm for a single selection event is presented below
 
 \noindent{\footnotesize
 \begin{tabularx}{\textwidth}{lX}
-\multicolumn{2}{c}{\textbf{$\epsilon$-Lexicase Selection}} \\ 
+\multicolumn{2}{c}{\textbf{Static $\epsilon$-Lexicase Selection}} \\ 
+\texttt{Get\_$\epsilon$-Lexicase\_Parent}($\mathcal{N,T}$) 	:						&	\\
+\hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
+\hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
+\hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{N}$)) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case\\
+\hspace{1em}	fitness$(n) \leftarrow \mathbb{I}(e_t(n) < e^*_t(n) + \epsilon_t)$ for $t \in \mathcal{T}$ and $n \in \mathcal{N}$	&	convert fitness using within-$\epsilon$ pass condition\\
+\hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
+\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow T'[0]$ 	&	consider the top case\\
+\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
+\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $<=$ \texttt{elite}	&	reduce selection pool to elites\\
+\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
+\hspace{1em} return random choice from $\mathcal{S}$															&	return parent  
+\end{tabularx}
+}
+
+\noindent{\footnotesize
+\begin{tabularx}{\textwidth}{lX}
+\multicolumn{2}{c}{\textbf{Dynamic $\epsilon$-Lexicase Selection}} \\ 
 \texttt{Get\_$\epsilon$-Lexicase\_Parent}($\mathcal{N,T}$) 	:						&	\\
 \hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
@@ -214,12 +234,7 @@ The lexicase selection algorithm for a single selection event is presented below
 \subsection{Expected Probabilities of Selection}
 What is the probability of an individual being selected, given its performance in a given population on a set of training cases?  
 
-\noindent $\mathcal{N} = \{n_i\}_{i=1}^N$: population \\
-$\mathcal{T} = \{t_i\}_{i=1}^T$: training cases\\
-$\mathcal{K}_n = \{k_i\}_{i=1}^K \subseteq \mathcal{T}$: training cases from $\mathcal{T}$ for which individual $n$ is elite\\
-
-
-To put it in words, the probability of $n$ being selected is the probability that a case $n$ passes ($t \in \mathcal{K}_n$) is selected and: \begin{enumerate} \item no more cases remain and $n$ is selected among the set of individuals that pass the selected case; or \item $n$ is the only individual that passes the case; or \item $n$ is selected via the selection of another case that $n$ passes (repeating the process). \end{enumerate} 
+Let $\mathcal{K}_n = \{k_i\}_{i=1}^K \subseteq \mathcal{T}$ be the training cases from $\mathcal{T}$ for which individual $n$ is elite. To put it in words, the probability of $n$ being selected is the probability that a case $n$ passes ($t \in \mathcal{K}_n$) is selected and: \begin{enumerate} \item no more cases remain and $n$ is selected among the set of individuals that pass the selected case; or \item $n$ is the only individual that passes the case; or \item $n$ is selected via the selection of another case that $n$ passes (repeating the process). \end{enumerate} 
 
 Formally, let $P_{sel}(n | \mathcal{N}, \mathcal{T}, \mathcal{K}_n)$ be the probability of $n$ being selected in a population $\mathcal{N}$ with training cases $\mathcal{T}$. Let $\mathcal{K}_n(\mathcal{T})$ be the subset of cases in $\mathcal{T}$ for which $n$ is elite. Then lexicase probability can be represented as a piecewise recursive function: 
 
@@ -263,7 +278,7 @@ $n_5$ & 0 & 3 & 5 & 2 & $\{t_1,t_4\}$ &	2.5		&	0.208	&	0.28
 \end{tabular}
 \end{table}
 
-We compare the probability of selection under lexicase selection to that using tournament selection with an indentical population and fitness structure. To do so we must first formulate the probability of selection for an individual undergoing tournament selection with $r$-size tournaments. Consider that the mean absolute error is used to aggregate the fitness cases. Then the fitness ranks of $\mathcal{N}$ can be calculated, with lower rank indicating better fitness. Let $S_i$ be the individuals in $\mathcal{N}$ with a fitness rank of $i$, and let $Q$ be the number of unique fitness ranks. Then Xie et. al. (cite) showed that the probability of selecting an individual with rank $j$ in a single tournament is 
+\paragraph{Probabilities under tournament selection} We compare the probability of selection under lexicase selection to that using tournament selection with an indentical population and fitness structure. To do so we must first formulate the probability of selection for an individual undergoing tournament selection with $r$-size tournaments. Consider that the mean absolute error is used to aggregate the fitness cases. Then the fitness ranks of $\mathcal{N}$ can be calculated, with lower rank indicating better fitness. Let $S_i$ be the individuals in $\mathcal{N}$ with a fitness rank of $i$, and let $Q$ be the number of unique fitness ranks. Then Xie et. al.~\cite{xie_another_2007} showed that the probability of selecting an individual with rank $j$ in a single tournament is 
 \begin{equation}
 P_t = \frac{1}{|S_j|}\left( \left(\frac{\sum_{i=j}^Q{|S_i|}}{N}\right)^r - \left(\frac{\sum_{i=j+1}^Q{|S_i|}}{N}\right)^r \right)
 \end{equation}
@@ -343,7 +358,7 @@ We can extend Theorem 1 to $\epsilon$-lexicase selection for conditions in which
 
 
 \medskip
-\noindent {\bf Definition:} $n_1$ $\epsilon$-dominates $n_2$, i.e., ${n_1} + \epsilon_j \prec_{\epsilon} {n_2}$, if $e_j(n_1) \leq e_j(n_2)  \;
+\noindent {\bf Definition:} $n_1$ $\epsilon$-dominates $n_2$, i.e., ${n_1} + \epsilon_j \prec_{\epsilon} {n_2}$, if $e_j(n_1) + \epsilon_j \leq e_j(n_2)  \;
 \forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,N\}$ for which $e_j(n_1) + \epsilon_j < e_j(n_2) $. \bigskip
 \bigskip
 
@@ -354,8 +369,7 @@ In this case, the analagous condition holds for individuals selected with $\epsi
 \medskip
 
 
-\noindent \textbf{Proof:} Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $e_j(n_1) \leq e_j(n_2) + \epsilon_j\;
-\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,N\}$ for which $e_j(n_1) < e_j(n_2) + \epsilon_j$. Therefore $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ for which $n_2$ is removed from selection due to $n_1$. Therefore $n_2$ cannot be selected by lexicase selection, the supposition is false, and the theorem is true. 
+\noindent \textbf{Proof:} Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ in every selection event for which $n_2$ is removed from selection due to $n_1$. Therefore $n_2$ cannot be selected by lexicase selection, the supposition is false, and the theorem is true. 
 \bigskip
 
 
