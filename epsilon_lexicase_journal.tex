@@ -170,11 +170,27 @@ The lexicase selection algorithm for a single selection event is presented below
 \hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
 \hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{N}$)) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case\\
-\hspace{1em}	fitness$(n) \leftarrow \mathbb{I}(e_t(n) < e^*_t(n) + \epsilon_t)$ for $t \in \mathcal{T}$ and $n \in \mathcal{N}$	&	convert fitness using within-$\epsilon$ pass condition\\
+\hspace{1em}	fitness$(n) \leftarrow \not \mathbb{I}(e_t(n) \leq e^*_t(n) + \epsilon_t)$ for $t \in \mathcal{T}$ and $n \in \mathcal{N}$	&	convert fitness using within-$\epsilon$ pass condition\\
 \hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
 \hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow T'[0]$ 	&	consider the top case\\
 \hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
-\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $<=$ \texttt{elite}	&	reduce selection pool to elites\\
+\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}	&	reduce selection pool to elites\\
+\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
+\hspace{1em} return random choice from $\mathcal{S}$															&	return parent  
+\end{tabularx}
+}
+
+\noindent{\footnotesize
+\begin{tabularx}{\textwidth}{lX}
+\multicolumn{2}{c}{\textbf{Semi-dynamic $\epsilon$-Lexicase Selection}} \\ 
+\texttt{Get\_$\epsilon$-Lexicase\_Parent}($\mathcal{N,T}$) 	:						&	\\
+\hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
+\hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
+\hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{N}$)) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case\\
+\hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
+\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow T'[0]$ 	&	consider the top case\\
+\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
+\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	reduce selection pool to elites\\
 \hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
 \hspace{1em} return random choice from $\mathcal{S}$															&	return parent  
 \end{tabularx}
@@ -186,11 +202,11 @@ The lexicase selection algorithm for a single selection event is presented below
 \texttt{Get\_$\epsilon$-Lexicase\_Parent}($\mathcal{N,T}$) 	:						&	\\
 \hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
-\hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{N}$)) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case\\
 \hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
 \hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow T'[0]$ 	&	consider the top case\\
 \hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
-\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $<=$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	reduce selection pool to elites\\
+\hspace{1em}\hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{S}$)) on \texttt{case}	&	determine $\epsilon$ for this case\\
+\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	reduce selection pool to elites\\
 \hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
 \hspace{1em} return random choice from $\mathcal{S}$															&	return parent  
 \end{tabularx}
@@ -314,13 +330,16 @@ The effectiveness of lexicase selection has also been tied to the number of fitn
 \end{enumerate}
 
 \section{Multi-objective Interpretation of Lexicase Selection}
+
+Objectives and training cases are funamentally different entities: objectives define the goals of the task being learned, whereas cases are the units by which progress towards those objectives is measured. By this criteria, lexicase selection and multi-objective optimization have historically been differentiated~\cite{helmuth_general_2015}, although there is clearly a ``multi-objective" interpretation of the behavior of lexicase selection with respect to the training cases. If we assume for a moment that we treat individual fitness cases as objectives to solve, we can consider most learnign tasks to be high-dimensional, many-objective optimization problems. At this scale, the most popular multi-objective methods (e.g. NSGA-II and SPEA-2) tend to perform poorly, a behavior that has been explained in literature~\cite{wagner_pareto-_2007, farina_optimal_2002}. Farina and Amato~\cite{farina_optimal_2002} point out two short-comings of these multi-objective methods when many objectives are considered: \begin{quote}
+the Pareto definition of optimality in a multi-criteria decision making problem can be unsatisfactory due to essentially two reasons: the number of improved or equal objective values is not taken into account, the (normalized) size of improvements is not taken into account
+\end{quote}
+
 Lexicase selection is guarantees the return of individuals that are on the Pareto front with respect to the fitness cases. This is a necessary but not sufficient condition. In fact, lexicase selection only selects those individuals in the ``corners" of the Pareto front, meaning they are on the front {\it and} elite, globally, with respect to at least one fitness case. Put another way, no individual can be selected via lexicase selection unless it is elite with respect to at least one objective among the entire population, regardless of its performance on other objectives. 
 
 Interestingly, the worst-case complexity of NSGA-II is the best-case complexity for lexicase selection. Add notes from discourse
 
-Farina and Amato~\cite{farina_optimal_2002}: \begin{quote}
-the Pareto definition of optimality in a multi-criteria decision making problem can be unsastisfactory due to essentially two reasons: the number of improved or equal objective values is not taken into account, the (normalized) size of improvements is not taken into account
-\end{quote}
+
 \begin{figure}
 \centering
   \includegraphics[width = \textwidth]{figs/lex_pareto.pdf}\\
@@ -358,11 +377,11 @@ We can extend Theorem 1 to $\epsilon$-lexicase selection for conditions in which
 
 
 \medskip
-\noindent {\bf Definition:} $n_1$ $\epsilon$-dominates $n_2$, i.e., ${n_1} + \epsilon_j \prec_{\epsilon} {n_2}$, if $e_j(n_1) + \epsilon_j \leq e_j(n_2)  \;
-\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,N\}$ for which $e_j(n_1) + \epsilon_j < e_j(n_2) $. \bigskip
+\noindent {\bf Definition:} $n_1$ $\epsilon$-dominates $n_2$, i.e., ${n_1} \prec_{\epsilon} {n_2}$, if $e_j(n_1) + \epsilon_j \leq e_j(n_2)  \;
+\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,N\}$ for which $e_j(n_1) + \epsilon_j < e_j(n_2) $. $\epsilon_j$\bigskip
 \bigskip
 
-In this case, the analagous condition holds for individuals selected with $\epsilon$-lexicase selection. 
+In this case, the analogous condition holds for individuals selected with $\epsilon$-lexicase selection. 
 
 \medskip
 \noindent \textbf{Theorem 2:} Individuals selected by $\epsilon$-lexicase selection are non-$\epsilon$-dominated in $\mathcal{N}$ with respect to the training cases $\mathcal{T}$. 
@@ -399,16 +418,27 @@ Elitism & keep best \\
 \begin{tabularx}{\columnwidth}{X r r r} \toprule
 \multicolumn{4}{c}{Regression}\\ 
 Problem & Dimension & Training Cases & Test Cases \\ \midrule
+Airfoil & 5	& 1052	&	451 \\
+Concrete	& 	8	&	721	&	309	\\
+Crime	&	127	&	1395	&	598	\\
+ENC & 8 & 538 & 230 \\
+ENH & 8 & 538 & 230 \\
 Housing & 14 & 354 & 152 \\
 Tower & 25 & 2195 &  940 \\
-Wind & 6 & 4200 & 1800 \\
-ENH & 8 & 538 & 230 \\
-ENC & 8 & 538 & 230 \\
-UBall5D & 5 & 1024 & 5000 \\ \midrule
+UBall5D & 5 & 1024 & 5000 \\ 
+Yacht	& 6	&	216	&	93	\\ \midrule
 \end{tabularx}
-\begin{tabularx}{\columnwidth}{X X r r r} 
-\multicolumn{5}{c}{Dynamical Systems}\\ \midrule
-Problem & Equations & Initial Conditions	& Training Cases & Test Cases \\ \midrule
+\rowcolors{3}{white}{LightCyan}
+\begin{tabularx}{\columnwidth}{L{0.25\columnwidth} L{0.3\columnwidth} r} 
+\multicolumn{3}{c}{Dynamical Systems\hspace{1em}280 Training Cases, 120 Test Cases}\\ \midrule
+Problem & Equations & Initial Conditions	\\ \midrule
+Bacterial Respiration & $\dot{x} = 20 - x - \frac{x \cdot y}{1+0.5 \cdot x^2}$ , $ \dot{y} = 10 - \frac{x \cdot y}{1+0.5 \cdot x^2}$	& \\
+Bar Magnets & $\dot{\theta} = 0.5 \cdot \sin (\theta - \phi) - \sin (\theta)$,  $ \dot{\phi} = 0.5 \cdot \sin (\phi - \theta) - \sin (\phi)$	&  \\
+Glider & $\dot{v} = - 0.05 \cdot  v^2 - sin (\theta)$	, $ \dot{\phi} = 0.5 \cdot \sin (\phi - \theta) - \sin (\phi)$	& \\
+Lotka-Volterra interspecies dynamics & $\dot{x} = 3  \cdot x - 2  \cdot x \cdot y - x^2$, $ \dot{\theta} = v - \cos (\theta)/v$	&  \\
+Predator Prey & $\dot{x} = x  \cdot \left( 4 - x - \frac{y}{1+x} \right)$, $ \dot{y} = 2 \cdot y - x \cdot y - y^2$ 	&  \\
+Shear Flow & $\dot{\theta} = \cot (\phi) \cdot cos(\theta)$, $ \dot{\phi} = \left(\cos ^2 (\phi) + 0.1 \cdot  \sin^2 (\phi)\right) \cdot sin(\theta)$	&  \\
+van der Pol oscillator & $\dot{x} = 10 \cdot  \left(y - \frac{1}{3} \cdot (x^3-x) \right)$	, $ \dot{y} = -\frac{1}{10} \cdot x$		&  \\ \midrule
 \end{tabularx}
 \begin{tabularx}{\columnwidth}{X X r r r} 
 \multicolumn{5}{c}{Program Synthesis}\\ 
@@ -420,12 +450,48 @@ Vector Average & vector of float of length [1,50] with each float in [-1000.0, 1
 \end{tabularx}
 
 \end{table} 
+\begin{table}[htb]
+\scriptsize
+\centering
+\renewcommand{\arraystretch}{1.2}\addtolength{\tabcolsep}{.5pt}
+\caption{The textbook ODE problems (left). The models generated by \texttt{Base} and ELGP variant \texttt{EHC5} are shown on the right.} \label{tbl:real_ode_models}
+\rowcolors{3}{white}{LightCyan}
+\begin{tabularx}{\textwidth}{L{0.12\textwidth} L{0.25\textwidth} L{0.25\textwidth} L{0.25\textwidth} } \toprule 
+ System & Target & Base Most Frequent Solution & EHC5 Most Frequent Solution \\ \midrule
+Bacterial Respiration & $\dot{x} = 20 - x - \frac{x \cdot y}{1+0.5 \cdot x^2}$	&	$\dot{x} = -(7.006\cdot (x + 0.4722\cdot y - 31.11))/y$	&	$\dot{x} = 20.12 - 1.009\cdot x - \frac{1.979\cdot y}{x} $	\\
+& $ \dot{y} = 10 - \frac{x \cdot y}{1+0.5 \cdot x^2}$	&	$\dot{y} = 9.994 - 0.5669\cdot y\cdot sin(3.526/x)$	&	$\dot{y} = 10.0 - \frac{2.0 \cdot x \cdot y}{2.001 + x^2}$	\\ \midrule
+Bar Magnets & $\dot{\theta} = 0.5 \cdot \sin (\theta - \phi) - \sin (\theta)$	&	$\dot{\theta} = sin(sin(cos(cos(\theta) - \phi) + sin(\theta) - 3.65))$	&	$\dot{\theta} = 0.5\cdot sin(\theta - \phi) - sin(\theta)$	\\
+& $ \dot{\phi} = 0.5 \cdot \sin (\phi - \theta) - \sin (\phi)$	&	$\dot{\phi} = - 0.5\cdot sin(\theta - \phi) - sin(\phi)$	&	$\dot{\phi} = - 0.5\cdot sin(\theta - \phi) - sin(\phi)$	\\ \midrule
+Glider & $\dot{v} = - 0.05 \cdot  v^2 - sin (\theta)$	&	$\dot{v} = - 0.05\cdot v^2 - sin(\theta)$	&	$\dot{v} = - 0.05\cdot v^2 - sin(\theta)$	\\
+& $ \dot{\theta} = v - \cos (\theta)/v$	&	$\dot{\theta} = v - (cos(\theta))/v$	&	$\dot{\theta} = v - (cos(\theta))/v$	\\ \midrule
+Lotka-Volterra interspecies dynamics & $\dot{x} = 3  \cdot x - 2  \cdot x \cdot y - x^2$	&	$\dot{x} = 3.0  \cdot x - 2.0  \cdot x \cdot y - x^2$	&	$\dot{x} = 3.0  \cdot x - 2.0  \cdot x \cdot y - x^2$	\\
+& $ \dot{y} = 2 \cdot y - x \cdot y - y^2$	&	$\dot{y} = 2.0 \cdot y - x \cdot y - y^2$	&	$\dot{y} = 2.0 \cdot y - x \cdot y - y^2$	\\ \midrule
+Predator Prey & $\dot{x} = x  \cdot \left( 4 - x - \frac{y}{1+x} \right)$	&	$\dot{y} = -0.5674\cdot x\cdot (y + x\cdot cos (\frac{0.7896\cdot y}{x + cos(0.1632\cdot x)}) - 6.119)$	& $\dot{y} = 0.3516\cdot x \cdot \left(8.122 - \frac{x}{cos(x/y)} - y \right)$	\\
+& $\dot{y} = y \cdot \left( \frac{x}{1+x} - 0.075 \cdot y \right)$	&	$\dot{y} = (y + 0.01059)\cdot \left(\frac{x}{x + 1.004}-0.07488\cdot y \right)$	&	$\dot{y} = y\cdot \left(\frac{x}{1.0 + x}-0.075\cdot y \right)$	\\ \midrule
+Shear Flow & $\dot{\theta} = \cot (\phi) \cdot cos(\theta)$	&	$\dot{\theta} = \cot (\phi) \cdot cos(\theta)$	&	$\dot{\theta} = \cot (\phi) \cdot cos(\theta)$	\\
+& $ \dot{\phi} = \left(\cos ^2 (\phi) + 0.1 \cdot  \sin^2 (\phi)\right) \cdot sin(\theta)$	&	$\dot{\phi} = 0.45\cdot sin(\theta)\cdot (cos(2.0\cdot \phi) + 1.222)$	&	$\dot{\phi} = 2.076\cdot sin \left(cos(sin(\phi)) - 0.4918 \right)\cdot sin(\theta)$	\\ \midrule
+van der Pol oscillator & $\dot{x} = 10 \cdot  \left(y - \frac{1}{3} \cdot (x^3-x) \right)$	&	$\dot{x} = (y + 10.41)\cdot (2.232\cdot sin(x) - 1.879\cdot x + sin(y))$	& $\dot{x} = 10.0 \cdot \left(y - 0.333\cdot (x^3-x) \right)$	\\
+& $ \dot{y} = -\frac{1}{10} \cdot x$	&	$\dot{y} = -0.1\cdot x$	&	$\dot{y} = -0.1\cdot x$	\\ \midrule
+\bottomrule
+\end{tabularx}
+\end{table}
 
 
 \subsection{Effect of population structure on probabilities of selection}
 
 
 \subsection{Results}\label{s:4 results}
+\begin{figure}
+\centering
+  \includegraphics[width=\textwidth]{figs/regression_boxplots.pdf}\\
+  \caption{Boxplots of the mean squared error on the test set for 50 randomized trials of each algorithm on the regression benchmark datasets.}\label{fig:boxplot_reg}
+\end{figure}
+
+\begin{figure}
+\centering
+  \includegraphics[width=\textwidth]{figs/ode_boxplots.pdf}\\
+  \caption{Boxplots of the mean squared error on the test set for 50 randomized trials of each algorithm on the regression benchmark datasets.}\label{fig:boxplot_reg}
+\end{figure}
 
 \section{Discussion}\label{s:5}
 
