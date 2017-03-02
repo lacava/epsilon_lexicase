@@ -270,6 +270,8 @@ P_{sel}(n | \mathcal{N}, \mathcal{T}) &= \\
 
 The first two elements of $P_{sel}$ follow from the lexicase algorithm: if there is one individual in $\mathcal{N}$, then it is selected; if there no more cases in in $\mathcal{T}$, then $n$ has a probability of selection split among the individuals in $\mathcal{N}$, i.e.,  $1/|\mathcal{N}|$. If neither of these conditions are met, the remaining probability of selection is $1/|\mathcal{T}|$ times the summation of $P_{sel}$ over $n$'s elite cases. Each case for which $n$ is elite (represented by $k_s \in K_n(\mathcal{T})$) has a probability of $1/|\mathcal{T}|$ of being selected. For each potential selection $k_s$, the probability of $n$ being selected as a result of this case being chosen is dependent on the number of individuals that are also elite on these cases, represented by $\mathcal{N}(m|k_s \in K_m(\mathcal{T}))$, and the cases that are left to be chosen, represented by $\mathcal{T}(t|t \neq k_s) )$. 
 
+Eqn.~\ref{eq:prob} also describes the probability of selection under $\epsilon$-lexicase selection, with the caveat that {\it elitism} on a case is defined as being within $\epsilon$ of the best error on that case, where the best error is defined among the whole population (statically) or among the current selection pool (semi-dynamic and dynamic). The definition of $\epsilon$ will differ according to whether static, semi-dynamic, or dynamic lexicase are being used as well.   
+
 \paragraph{Example}
 As an example of calculating absolute probabilities, we consider the illustrative problem from the original lexicase selection paper~\cite{spector_assessment_2013}, shown in Table~\ref{tbl:ex}. Using Eqn.~\ref{eq:prob}, the probabilities for each individual can be calculated as follows:
 
@@ -399,46 +401,48 @@ In this case, the analogous condition holds for individuals selected with $\epsi
 
 \begin{table}
 \scriptsize
-\caption{Symbolic regression problem settings.}\label{tbl:symreg_settings}
+\caption{GP settings.}\label{tbl:symreg_settings}
 \begin{tabularx}{\columnwidth}{X R{0.57\columnwidth}} \toprule
 Setting& Value \\ \midrule
 Population size & 1000 \\
-Crossover / mutation & 80/20\% \\
+Crossover / mutation & 60/40\% \\
 Program length limits & [3, 50] \\ 
 ERC range & [-1,1] \\
 Generation limit & 1000 \\
-Trials & 30 \\
+Trials & 50 \\
 Terminal Set & \{$\mathbf{x}$, ERC, $+$, $-$, $*$, $/$, $\sin$, $\cos$, $\exp$, $\log$\}\\
 Elitism & keep best \\
 \end{tabularx}
 \end{table}
 \begin{table}
 \scriptsize
-\caption{Problems used for method comparisons.}\label{tbl:datasets}
-\begin{tabularx}{\columnwidth}{X r r r} \toprule
-\multicolumn{4}{c}{Regression}\\ 
-Problem & Dimension & Training Cases & Test Cases \\ \midrule
-Airfoil & 5	& 1052	&	451 \\
-Concrete	& 	8	&	721	&	309	\\
-Crime	&	127	&	1395	&	598	\\
-ENC & 8 & 538 & 230 \\
-ENH & 8 & 538 & 230 \\
-Housing & 14 & 354 & 152 \\
-Tower & 25 & 2195 &  940 \\
-UBall5D & 5 & 1024 & 5000 \\ 
-Yacht	& 6	&	216	&	93	\\ \midrule
+\caption{Regresion problems used for method comparisons.}\label{tbl:regression}
+\begin{tabularx}{\columnwidth}{X r r } \toprule
+Problem & Dimension & Samples \\ \midrule
+Airfoil & 5	& 1503 \\
+Concrete	& 	8	& 1030	\\
+Crime	&	127	&	1993	\\
+ENC & 8 & 768 \\
+ENH & 8 & 768 \\
+Housing & 14 & 506 \\
+Tower & 25 & 3135 \\
+UBall5D & 5 & 6024 \\ 
+Yacht	& 6	&	309	\\ \midrule
 \end{tabularx}
-\rowcolors{3}{white}{LightCyan}
-\begin{tabularx}{\columnwidth}{L{0.25\columnwidth} L{0.3\columnwidth} r} 
-\multicolumn{3}{c}{Dynamical Systems\hspace{1em}280 Training Cases, 120 Test Cases}\\ \midrule
-Problem & Equations & Initial Conditions	\\ \midrule
-Bacterial Respiration & $\dot{x} = 20 - x - \frac{x \cdot y}{1+0.5 \cdot x^2}$ , $ \dot{y} = 10 - \frac{x \cdot y}{1+0.5 \cdot x^2}$	& \\
-Bar Magnets & $\dot{\theta} = 0.5 \cdot \sin (\theta - \phi) - \sin (\theta)$,  $ \dot{\phi} = 0.5 \cdot \sin (\phi - \theta) - \sin (\phi)$	&  \\
-Glider & $\dot{v} = - 0.05 \cdot  v^2 - sin (\theta)$	, $ \dot{\phi} = 0.5 \cdot \sin (\phi - \theta) - \sin (\phi)$	& \\
-Lotka-Volterra interspecies dynamics & $\dot{x} = 3  \cdot x - 2  \cdot x \cdot y - x^2$, $ \dot{\theta} = v - \cos (\theta)/v$	&  \\
-Predator Prey & $\dot{x} = x  \cdot \left( 4 - x - \frac{y}{1+x} \right)$, $ \dot{y} = 2 \cdot y - x \cdot y - y^2$ 	&  \\
-Shear Flow & $\dot{\theta} = \cot (\phi) \cdot cos(\theta)$, $ \dot{\phi} = \left(\cos ^2 (\phi) + 0.1 \cdot  \sin^2 (\phi)\right) \cdot sin(\theta)$	&  \\
-van der Pol oscillator & $\dot{x} = 10 \cdot  \left(y - \frac{1}{3} \cdot (x^3-x) \right)$	, $ \dot{y} = -\frac{1}{10} \cdot x$		&  \\ \midrule
+\end{table}
+\begin{table}
+\scriptsize
+\caption{Dynamical systems used for method comparisons. The systems were simulated four times using initial conditions within stable basins of attraction. $\gamma$ indicates zero-mean, unit-variance Gaussian noise. }\label{tbl:ode}
+\rowcolors{4}{white}{LightCyan}
+\begin{tabularx}{\columnwidth}{L{0.25\columnwidth} L{0.3\columnwidth} L{0.19\columnwidth}  R{0.1\columnwidth}} 
+Problem & Equations & Initial Conditions	& Samples \\ \midrule
+Bacterial Respiration & $\dot{x} = 20 - x - \frac{x \cdot y}{1+0.5 \cdot x^2}$ , $ \dot{y} = 10 - \frac{x \cdot y}{1+0.5 \cdot x^2}$	& $x_0=5 \pm \gamma$, $y_0=10 \pm 0.1\gamma$ & 400 \\
+Bar Magnets & $\dot{\theta} = 0.5 \cdot \sin (\theta - \phi) - \sin (\theta)$,  $ \dot{\phi} = 0.5 \cdot \sin (\phi - \theta) - \sin (\phi)$	&  $\theta_0 \in [-2\pi,2\pi]$, $\phi_0 \in [-2\pi,2\pi]$ & 400 \\
+Glider & $\dot{v} = - 0.05 \cdot  v^2 - sin (\theta)$	, $ \dot{\theta} = v - \cos (\theta)/v$	& $v_0=5 \pm \gamma$, $\theta_0=10 \pm 0.1\gamma$ & 400 \\
+Lotka-Volterra interspecies dynamics & $\dot{x} = 3  \cdot x - 2  \cdot x \cdot y - x^2$, $ \dot{y} = 2 \cdot y - x \cdot y - y^2$	&  $x_0=[1,4,8,3]$, $y_0 = [3, 1, 2, 3]$ & 400 \\
+Predator Prey & $\dot{x} = x  \cdot \left( 4 - x - \frac{y}{1+x} \right)$, $ \dot{y} = 2 \cdot y - x \cdot y - y^2$ 	& $x_0=5 \pm \gamma$, $y_0=10 \pm 0.1\gamma$  & 400 \\
+Shear Flow & $\dot{\theta} = \cot (\phi) \cdot cos(\theta)$, $ \dot{\phi} = \left(\cos ^2 (\phi) + 0.1 \cdot  \sin^2 (\phi)\right) \cdot sin(\theta)$	&  $\theta_0 \in [-\pi,\pi]$, $\phi_0 \in [-\pi/2,\pi/2]$ & 400 \\
+van der Pol oscillator & $\dot{x} = 10 \cdot  \left(y - \frac{1}{3} \cdot (x^3-x) \right)$	, $ \dot{y} = -\frac{1}{10} \cdot x$		& $x,y \in [0,1]$  & 400 \\ \midrule
 \end{tabularx}
 \begin{tabularx}{\columnwidth}{X X r r r} 
 \multicolumn{5}{c}{Program Synthesis}\\ 
@@ -448,34 +452,7 @@ Wallis PI & integer in [1, 200] & float &	150 & 50 \\
 Vector Average & vector of float of length [1,50] with each float in [-1000.0, 1000.0]	& float &	100	&	1000 \\ 
 \bottomrule
 \end{tabularx}
-
-\end{table} 
-\begin{table}[htb]
-\scriptsize
-\centering
-\renewcommand{\arraystretch}{1.2}\addtolength{\tabcolsep}{.5pt}
-\caption{The textbook ODE problems (left). The models generated by \texttt{Base} and ELGP variant \texttt{EHC5} are shown on the right.} \label{tbl:real_ode_models}
-\rowcolors{3}{white}{LightCyan}
-\begin{tabularx}{\textwidth}{L{0.12\textwidth} L{0.25\textwidth} L{0.25\textwidth} L{0.25\textwidth} } \toprule 
- System & Target & Base Most Frequent Solution & EHC5 Most Frequent Solution \\ \midrule
-Bacterial Respiration & $\dot{x} = 20 - x - \frac{x \cdot y}{1+0.5 \cdot x^2}$	&	$\dot{x} = -(7.006\cdot (x + 0.4722\cdot y - 31.11))/y$	&	$\dot{x} = 20.12 - 1.009\cdot x - \frac{1.979\cdot y}{x} $	\\
-& $ \dot{y} = 10 - \frac{x \cdot y}{1+0.5 \cdot x^2}$	&	$\dot{y} = 9.994 - 0.5669\cdot y\cdot sin(3.526/x)$	&	$\dot{y} = 10.0 - \frac{2.0 \cdot x \cdot y}{2.001 + x^2}$	\\ \midrule
-Bar Magnets & $\dot{\theta} = 0.5 \cdot \sin (\theta - \phi) - \sin (\theta)$	&	$\dot{\theta} = sin(sin(cos(cos(\theta) - \phi) + sin(\theta) - 3.65))$	&	$\dot{\theta} = 0.5\cdot sin(\theta - \phi) - sin(\theta)$	\\
-& $ \dot{\phi} = 0.5 \cdot \sin (\phi - \theta) - \sin (\phi)$	&	$\dot{\phi} = - 0.5\cdot sin(\theta - \phi) - sin(\phi)$	&	$\dot{\phi} = - 0.5\cdot sin(\theta - \phi) - sin(\phi)$	\\ \midrule
-Glider & $\dot{v} = - 0.05 \cdot  v^2 - sin (\theta)$	&	$\dot{v} = - 0.05\cdot v^2 - sin(\theta)$	&	$\dot{v} = - 0.05\cdot v^2 - sin(\theta)$	\\
-& $ \dot{\theta} = v - \cos (\theta)/v$	&	$\dot{\theta} = v - (cos(\theta))/v$	&	$\dot{\theta} = v - (cos(\theta))/v$	\\ \midrule
-Lotka-Volterra interspecies dynamics & $\dot{x} = 3  \cdot x - 2  \cdot x \cdot y - x^2$	&	$\dot{x} = 3.0  \cdot x - 2.0  \cdot x \cdot y - x^2$	&	$\dot{x} = 3.0  \cdot x - 2.0  \cdot x \cdot y - x^2$	\\
-& $ \dot{y} = 2 \cdot y - x \cdot y - y^2$	&	$\dot{y} = 2.0 \cdot y - x \cdot y - y^2$	&	$\dot{y} = 2.0 \cdot y - x \cdot y - y^2$	\\ \midrule
-Predator Prey & $\dot{x} = x  \cdot \left( 4 - x - \frac{y}{1+x} \right)$	&	$\dot{y} = -0.5674\cdot x\cdot (y + x\cdot cos (\frac{0.7896\cdot y}{x + cos(0.1632\cdot x)}) - 6.119)$	& $\dot{y} = 0.3516\cdot x \cdot \left(8.122 - \frac{x}{cos(x/y)} - y \right)$	\\
-& $\dot{y} = y \cdot \left( \frac{x}{1+x} - 0.075 \cdot y \right)$	&	$\dot{y} = (y + 0.01059)\cdot \left(\frac{x}{x + 1.004}-0.07488\cdot y \right)$	&	$\dot{y} = y\cdot \left(\frac{x}{1.0 + x}-0.075\cdot y \right)$	\\ \midrule
-Shear Flow & $\dot{\theta} = \cot (\phi) \cdot cos(\theta)$	&	$\dot{\theta} = \cot (\phi) \cdot cos(\theta)$	&	$\dot{\theta} = \cot (\phi) \cdot cos(\theta)$	\\
-& $ \dot{\phi} = \left(\cos ^2 (\phi) + 0.1 \cdot  \sin^2 (\phi)\right) \cdot sin(\theta)$	&	$\dot{\phi} = 0.45\cdot sin(\theta)\cdot (cos(2.0\cdot \phi) + 1.222)$	&	$\dot{\phi} = 2.076\cdot sin \left(cos(sin(\phi)) - 0.4918 \right)\cdot sin(\theta)$	\\ \midrule
-van der Pol oscillator & $\dot{x} = 10 \cdot  \left(y - \frac{1}{3} \cdot (x^3-x) \right)$	&	$\dot{x} = (y + 10.41)\cdot (2.232\cdot sin(x) - 1.879\cdot x + sin(y))$	& $\dot{x} = 10.0 \cdot \left(y - 0.333\cdot (x^3-x) \right)$	\\
-& $ \dot{y} = -\frac{1}{10} \cdot x$	&	$\dot{y} = -0.1\cdot x$	&	$\dot{y} = -0.1\cdot x$	\\ \midrule
-\bottomrule
-\end{tabularx}
 \end{table}
-
 
 \subsection{Effect of population structure on probabilities of selection}
 
@@ -499,7 +476,7 @@ van der Pol oscillator & $\dot{x} = 10 \cdot  \left(y - \frac{1}{3} \cdot (x^3-x
 \section{Conclusions}\label{s:6}
 
 \section{Acknowledgments}
-The authors would like to thank Thomas Helmuth, Nic McPhee and Bill Tozier for their feedback as well as members of the Computational Intelligence Laboratory at Hampshire College. This work is partially supported by NSF Grant Nos. 1068864, 1129139 and 1331283. Any opinions, findings, and conclusions or recommendations expressed in this publication are those of the authors and do not necessarily reflect the views of the National Science Foundation. This work used the Extreme Science and Engineering Discovery Environment (XSEDE), which is supported by NSF grant number ACI-1053575~\cite{towns_xsede:_2014}.
+
 
 
 \bibliographystyle{abbrv}
