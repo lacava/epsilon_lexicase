@@ -106,8 +106,16 @@ Lexicase selection is a parent selection method that considers test cases separa
 
 \section{INTRODUCTION}
   
-\noindent $\mathcal{N} = \{n_i\}_{i=1}^N$: population \\
-$\mathcal{T} = \{t_i\}_{i=1}^T$: training cases\\
+
+
+\section{Preliminaries}
+We denote the population of $N$ programs as $\mathcal{N} = \{n_i\}_{i=1}^N$, the training cases on which they are asses as $\mathcal{T} = \{t_i = (y_i,\mathbf{x}_i)\}_{i=1}^T$, and the errors they produce as $\mathbf{e}_t(n) = (y_t - \hat{y}_t(n))^2$.  
+
+$\mathcal{T} = \{ (y_t,\mathbf{x}_t)\}_{t = 1}^N$, using e.g. the mean absolute error (MAE), which is quantified for individual program $i \in P$ as:
+\begin{equation}
+f(i,\mathcal{T}) = \frac{1}{N} \sum_{t \in \mathcal{T}}{|y_t - \hat{y}_t(i,\mathbf{x}_t)|} \label{eq:fit} 
+\end{equation}
+where $\mathbf{x} \in \mathbb{R}^D$ represents the variables or features, the target output is $y$ and $\hat{y}(i,\mathbf{x})$ is the program's output. As a result of the aggregation of the absolute error vector $e(i) = |y - \hat{y}(i,\mathbf{x})|$ in Eq.~(\ref{eq:fit}), the relationship of $\hat{y}$ to $y$ is represented crudely when choosing models to propagate.
 
 \section{Lexicase Selection}\label{s:2}
 Lexicase selection is a parent selection technique based on lexicographic ordering of test (i.e. fitness) cases.  Each parent selection event proceeds as follows: 
@@ -172,7 +180,7 @@ The lexicase selection algorithm for a single selection event is presented below
 \hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{N}$)) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case\\
 \hspace{1em}	fitness$(n) \leftarrow \not \mathbb{I}(e_t(n) \leq e^*_t(n) + \epsilon_t)$ for $t \in \mathcal{T}$ and $n \in \mathcal{N}$	&	convert fitness using within-$\epsilon$ pass condition\\
 \hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
-\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow T'[0]$ 	&	consider the top case\\
+\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$  	&	consider the top case\\
 \hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
 \hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}	&	reduce selection pool to elites\\
 \hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
@@ -188,7 +196,7 @@ The lexicase selection algorithm for a single selection event is presented below
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
 \hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{N}$)) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case\\
 \hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
-\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow T'[0]$ 	&	consider the top case\\
+\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$ &	consider the top case\\
 \hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
 \hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	reduce selection pool to elites\\
 \hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
@@ -203,7 +211,7 @@ The lexicase selection algorithm for a single selection event is presented below
 \hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
 \hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
-\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow T'[0]$ 	&	consider the top case\\
+\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$  	&	consider the top case\\
 \hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
 \hspace{1em}\hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{S}$)) on \texttt{case}	&	determine $\epsilon$ for this case\\
 \hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	reduce selection pool to elites\\
@@ -247,12 +255,14 @@ The lexicase selection algorithm for a single selection event is presented below
 \begin{table}
 
 \end{table}
-\subsection{Expected Probabilities of Selection}
+\section{Expected Probabilities of Selection}
 What is the probability of an individual being selected, given its performance in a given population on a set of training cases?  
 
-Let $\mathcal{K}_n = \{k_i\}_{i=1}^K \subseteq \mathcal{T}$ be the training cases from $\mathcal{T}$ for which individual $n$ is elite. To put it in words, the probability of $n$ being selected is the probability that a case $n$ passes ($t \in \mathcal{K}_n$) is selected and: \begin{enumerate} \item no more cases remain and $n$ is selected among the set of individuals that pass the selected case; or \item $n$ is the only individual that passes the case; or \item $n$ is selected via the selection of another case that $n$ passes (repeating the process). \end{enumerate} 
 
-Formally, let $P_{sel}(n | \mathcal{N}, \mathcal{T}, \mathcal{K}_n)$ be the probability of $n$ being selected in a population $\mathcal{N}$ with training cases $\mathcal{T}$. Let $\mathcal{K}_n(\mathcal{T})$ be the subset of cases in $\mathcal{T}$ for which $n$ is elite. Then lexicase probability can be represented as a piecewise recursive function: 
+
+To put it into words, the probability of $n$ being selected is the probability that a case $n$ passes (a member of $\mathcal{K}_n$) is selected and: \begin{enumerate} \item no more cases remain and $n$ is selected among the set of individuals that pass the selected case; or \item $n$ is the only individual that passes the case; or \item $n$ is selected via the selection of another case that $n$ passes (repeating the process). \end{enumerate} 
+
+Formally, let $P_{sel}(n | \mathcal{N}, \mathcal{T})$ be the probability of $n$ being selected in a population $\mathcal{N}$ with training cases $\mathcal{T}$. Let $\mathcal{K}_n(\mathcal{T},\mathcal{N}) = \{k_i\}_{i=1}^K \subseteq \mathcal{T}$ be the training cases from $\mathcal{T}$ for which individual $n$ is elite among $\mathcal{N}$. We will use $\mathcal{K}_n$ for brevity. Then the probability of selection under lexicase can be represented as a piece-wise recursive function: 
 
 
 {\scriptsize
@@ -262,50 +272,26 @@ P_{sel}(n | \mathcal{N}, \mathcal{T}) &= \\
      \begin{array}{lcr}
        1 & : & |\mathcal{T}| >0, |\mathcal{N}| = 1; \\
        1/|\mathcal{N}| & : &|\mathcal{T}| = 0; \\ 
-       \frac{1}{|\mathcal{T}|}\sum_{k_s \in K_n(\mathcal{T})}{P_{sel} \left( n | \mathcal{N}(m|k_s \in K_m(\mathcal{T})), \mathcal{T}(t|t \neq k_s) \right)} & : & \text{otherwise}
+       \frac{1}{|\mathcal{T}|}\sum_{k_s \in K_n}{P_{sel} \left( n | \mathcal{N}(m|k_s \in K_m), \mathcal{T}(t|t \neq k_s) \right)} & : & \text{otherwise}
      \end{array}
    \right. 
 \end{align}
 }
 
-The first two elements of $P_{sel}$ follow from the lexicase algorithm: if there is one individual in $\mathcal{N}$, then it is selected; if there no more cases in in $\mathcal{T}$, then $n$ has a probability of selection split among the individuals in $\mathcal{N}$, i.e.,  $1/|\mathcal{N}|$. If neither of these conditions are met, the remaining probability of selection is $1/|\mathcal{T}|$ times the summation of $P_{sel}$ over $n$'s elite cases. Each case for which $n$ is elite (represented by $k_s \in K_n(\mathcal{T})$) has a probability of $1/|\mathcal{T}|$ of being selected. For each potential selection $k_s$, the probability of $n$ being selected as a result of this case being chosen is dependent on the number of individuals that are also elite on these cases, represented by $\mathcal{N}(m|k_s \in K_m(\mathcal{T}))$, and the cases that are left to be chosen, represented by $\mathcal{T}(t|t \neq k_s) )$. 
+The first two elements of $P_{sel}$ follow from the lexicase algorithm: if there is one individual in $\mathcal{N}$, then it is selected; otherwise if there no more cases in in $\mathcal{T}$, then $n$ has a probability of selection split among the individuals in $\mathcal{N}$, i.e.,  $1/|\mathcal{N}|$. If neither of these conditions are met, the remaining probability of selection is $1/|\mathcal{T}|$ times the summation of $P_{sel}$ over $n$'s elite cases. Each case for which $n$ is elite among the current pool (represented by $k_s \in K_n$) has a probability of $1/|\mathcal{T}|$ of being selected. For each potential selection $k_s$, the probability of $n$ being selected as a result of this case being chosen is dependent on the number of individuals that are also elite on these cases, represented by $\mathcal{N}(m|k_s \in K_m(\mathcal{T}))$, and the cases that are left to be traversed, represented by $\mathcal{T}(t|t \neq k_s)$. 
 
-Eqn.~\ref{eq:prob} also describes the probability of selection under $\epsilon$-lexicase selection, with the caveat that {\it elitism} on a case is defined as being within $\epsilon$ of the best error on that case, where the best error is defined among the whole population (statically) or among the current selection pool (semi-dynamic and dynamic). The definition of $\epsilon$ will differ according to whether static, semi-dynamic, or dynamic lexicase are being used as well.   
+Eqn.~\ref{eq:prob} also describes the probability of selection under $\epsilon$-lexicase selection, with the condition that {\it elitism} on a case is defined as being within $\epsilon$ of the best error on that case, where the best error is defined among the whole population (statically) or among the current selection pool (semi-dynamic and dynamic). The definition of $\epsilon$ differs according to whether static, semi-dynamic, or dynamic lexicase are being used as well.   
 
-\paragraph{Example}
-As an example of calculating absolute probabilities, we consider the illustrative problem from the original lexicase selection paper~\cite{spector_assessment_2013}, shown in Table~\ref{tbl:ex}. Using Eqn.~\ref{eq:prob}, the probabilities for each individual can be calculated as follows:
 
-\begin{align*}
-P_{sel}(n_1) &=& 1/4*(1/3*(1)+1/3*(1+1)) = 0.25 \\
-P_{sel}(n_2) &=& 1/4*(0) = 0 \\
-P_{sel}(n_3) &=&1/4*(1/3*(1+1/2*(1))+1/3*(1)) = 0.20833 \\
-P_{sel}(n_4) &=& 1/4*(1/3*(1/2*(1)+1)+1/3*(1)) = 0.20833 
-\end{align*}
+\paragraph{Intuitions according to edge cases}
+According to Eqn.~\ref{eq:prob}, when fitness values across the population are unique, selection probability is $\frac{1}{|\mathcal{T}|} \sum_{k_s \in \mathcal{K}_n(\mathcal{T})} 1 = \frac{|\mathcal{K}_n|}{|\mathcal{T}|} \; \forall \; n$, since filtering the population according to any case for which $n$ is elite will result in $n$ being selected. Conversely, if the population semantics are completely homogeneous such that every individual is elite on every case, the selection will be uniformly random, giving the selection probability $\frac{1}{N} \; \forall \; n$. In fact, this holds true for individual cases: a case $t$ will have no impact on the probability of selection of $n$ if $t \notin K_n \; \forall \; n,t \; \in \mathcal{N}, \mathcal{T}$. This is clear when viewed from the lexicase algorithm: any case that every individual passes provides no selective pressure. 
 
-\begin{table}
-\centering
-\caption{Example population from original lexicase paper (Spector 2013).}\label{tbl:ex}
-\begin{tabular}{l|cccc|c|r|rr}
-Program & \multicolumn{4}{c}{Test} & $\mathcal{K}(\mathcal{T})$ & MAE & $P_{sel}$ & $P_{t}$\\
-& $t_1$ & $t_2$ & $t_3$ & $t_4$ & \\ \hline
-$n_1$ & 2 & 2 & 4 & 2 & $\{t_2,t_4\}$ &	2.5		&	0.25 	& 	0.28	\\
-$n_2$ & 1 & 2 & 4 & 3 & $\{t_2\}$		&	2.5		&	0.00	&	0.28	\\
-$n_3$ & 2 & 2 & 3 & 4 & $\{t_2,t_3\}$ &	2.75	& 	0.33	&	0.12	\\
-$n_4$ & 0 & 2 & 5 & 5 & $\{t_1,t_2\}$ &	3.0		& 	0.208	&	0.04	\\
-$n_5$ & 0 & 3 & 5 & 2 & $\{t_1,t_4\}$ &	2.5		&	0.208	&	0.28
-\end{tabular}
-\end{table}
-
-\paragraph{Probabilities under tournament selection} We compare the probability of selection under lexicase selection to that using tournament selection with an indentical population and fitness structure. To do so we must first formulate the probability of selection for an individual undergoing tournament selection with $r$-size tournaments. Consider that the mean absolute error is used to aggregate the fitness cases. Then the fitness ranks of $\mathcal{N}$ can be calculated, with lower rank indicating better fitness. Let $S_i$ be the individuals in $\mathcal{N}$ with a fitness rank of $i$, and let $Q$ be the number of unique fitness ranks. Then Xie et. al.~\cite{xie_another_2007} showed that the probability of selecting an individual with rank $j$ in a single tournament is 
-\begin{equation}
-P_t = \frac{1}{|S_j|}\left( \left(\frac{\sum_{i=j}^Q{|S_i|}}{N}\right)^r - \left(\frac{\sum_{i=j+1}^Q{|S_i|}}{N}\right)^r \right)
-\end{equation}
 
 
 
 \begin{figure}
 \centering
-  \includegraphics[height = 0.4\textheight]{figs/lex_graph.pdf}\\
+  \includegraphics[height = 0.4\textheight]{figs/lex_graph.pdf}\label{fig:lex_graph}
   \caption{A graphical representation of 3 example parent selections using lexicase selection on the population in Table~\ref{tbl:ex}. The bold, dashed and dot-dashed lines indicate different selection paths through the test cases in circles. The boxes indicate the selection pool at each step in the process.}\label{fig:boxplot_eps_e}
 \end{figure}
 
@@ -331,9 +317,16 @@ The effectiveness of lexicase selection has also been tied to the number of fitn
 \item do not assume that $N$ rounds of lexicase selection are conducted!
 \end{enumerate}
 
+\paragraph{Probabilities under tournament selection} We compare the probability of selection under lexicase selection to that using tournament selection with an indentical population and fitness structure. To do so we must first formulate the probability of selection for an individual undergoing tournament selection with $r$-size tournaments. Consider that the mean absolute error is used to aggregate the fitness cases. Then the fitness ranks of $\mathcal{N}$ can be calculated, with lower rank indicating better fitness. Let $S_i$ be the individuals in $\mathcal{N}$ with a fitness rank of $i$, and let $Q$ be the number of unique fitness ranks. Then Xie et. al.~\cite{xie_another_2007} showed that the probability of selecting an individual with rank $j$ in a single tournament is 
+\begin{equation}
+P_t = \frac{1}{|S_j|}\left( \left(\frac{\sum_{i=j}^Q{|S_i|}}{N}\right)^r - \left(\frac{\sum_{i=j+1}^Q{|S_i|}}{N}\right)^r \right)
+\end{equation}
+
+In Table~\ref{tbl:ex}, the selection probabilities for the example population are shown according to tournament selection. 
+
 \section{Multi-objective Interpretation of Lexicase Selection}
 
-Objectives and training cases are funamentally different entities: objectives define the goals of the task being learned, whereas cases are the units by which progress towards those objectives is measured. By this criteria, lexicase selection and multi-objective optimization have historically been differentiated~\cite{helmuth_general_2015}, although there is clearly a ``multi-objective" interpretation of the behavior of lexicase selection with respect to the training cases. If we assume for a moment that we treat individual fitness cases as objectives to solve, we can consider most learnign tasks to be high-dimensional, many-objective optimization problems. At this scale, the most popular multi-objective methods (e.g. NSGA-II and SPEA-2) tend to perform poorly, a behavior that has been explained in literature~\cite{wagner_pareto-_2007, farina_optimal_2002}. Farina and Amato~\cite{farina_optimal_2002} point out two short-comings of these multi-objective methods when many objectives are considered: \begin{quote}
+Objectives and training cases are fundamentally different entities: objectives define the goals of the task being learned, whereas cases are the units by which progress towards those objectives is measured. By this criteria, lexicase selection and multi-objective optimization have historically been differentiated~\cite{helmuth_general_2015}, although there is clearly a ``multi-objective" interpretation of the behavior of lexicase selection with respect to the training cases. If we assume for a moment that we treat individual fitness cases as objectives to solve, we can consider most learnign tasks to be high-dimensional, many-objective optimization problems. At this scale, the most popular multi-objective methods (e.g. NSGA-II and SPEA-2) tend to perform poorly, a behavior that has been explained in literature~\cite{wagner_pareto-_2007, farina_optimal_2002}. Farina and Amato~\cite{farina_optimal_2002} point out two short-comings of these multi-objective methods when many objectives are considered: \begin{quote}
 the Pareto definition of optimality in a multi-criteria decision making problem can be unsatisfactory due to essentially two reasons: the number of improved or equal objective values is not taken into account, the (normalized) size of improvements is not taken into account
 \end{quote}
 
@@ -342,11 +335,21 @@ Lexicase selection is guarantees the return of individuals that are on the Paret
 Interestingly, the worst-case complexity of NSGA-II is the best-case complexity for lexicase selection. Add notes from discourse
 
 
+
 \begin{figure}
+
+\begin{minipage}{0.49\textwidth}
 \centering
-  \includegraphics[width = \textwidth]{figs/lex_pareto.pdf}\\
-  \caption{An illstration of the performance of lexicase selection and $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals on the Pareto front. In each case, the selection ordering shown is $\{t_1,t_2\}$. }\label{fig:boxplot_eps_e}
+  \includegraphics[width = \textwidth]{figs/lex_pareto.pdf}\label{fig:lex_pareto}
+  \caption{An illstration of the performance of lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals on the Pareto front. In each case, the selection ordering shown is $\{t_1,t_2\}$. }
+\end{minipage}
+\begin{minipage}{0.49\textwidth}
+\centering
+  \includegraphics[width = \textwidth]{figs/ep-lex_pareto.pdf}\label{fig:ep-lex_pareto}
+  \caption{An illstration of the performance of $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals on the Pareto front. In each case, the selection ordering shown is $\{t_1,t_2\}$. }
+\end{minipage}
 \end{figure}
+
 %Here is a detailed look at selection for program $n_1$:
 %\begin{align*}
 %P_{sel}(n_1 | \mathcal{N}, \mathcal{T}) &= \frac{1}{|\{t_1,t_2,t_3,t_4\}|}  \sum_{k_s \in \{t_2,t_4\}}{ P_{sel} \left( n_1 | \mathcal{N}(m|k_s \in K_m(\mathcal{T})), \mathcal{T}(t|t \neq k_s) \right)}  \\
@@ -393,6 +396,30 @@ In this case, the analogous condition holds for individuals selected with $\epsi
 \noindent \textbf{Proof:} Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ in every selection event for which $n_2$ is removed from selection due to $n_1$. Therefore $n_2$ cannot be selected by lexicase selection, the supposition is false, and the theorem is true. 
 \bigskip
 
+\section{Illustrative Example}
+\paragraph{Example}
+As an example of calculating absolute probabilities, we consider the illustrative problem from the original lexicase selection paper~\cite{spector_assessment_2013}, shown in Table~\ref{tbl:ex}. Using Eqn.~\ref{eq:prob}, the probabilities for each individual can be calculated as follows:
+
+\begin{align*}
+P_{sel}(n_1) &=& 1/4*(1/3*(1)+1/3*(1+1)) = 0.25 \\
+P_{sel}(n_2) &=& 1/4*(0) = 0 \\
+P_{sel}(n_3) &=&1/4*(1/3*(1+1/2*(1))+1/3*(1)) = 0.20833 \\
+P_{sel}(n_4) &=& 1/4*(1/3*(1/2*(1)+1)+1/3*(1)) = 0.20833 
+\end{align*}
+
+\begin{table}
+\centering
+\caption{Example population from original lexicase paper (Spector 2013).}\label{tbl:ex}
+\begin{tabular}{l|cccc|c|r|rr}
+Program & \multicolumn{4}{c}{Test} & $\mathcal{K}(\mathcal{T})$ & MAE & $P_{sel}$ & $P_{t}$\\
+& $t_1$ & $t_2$ & $t_3$ & $t_4$ & \\ \hline
+$n_1$ & 2 & 2 & 4 & 2 & $\{t_2,t_4\}$ &	2.5		&	0.25 	& 	0.28	\\
+$n_2$ & 1 & 2 & 4 & 3 & $\{t_2\}$		&	2.5		&	0.00	&	0.28	\\
+$n_3$ & 2 & 2 & 3 & 4 & $\{t_2,t_3\}$ &	2.75	& 	0.33	&	0.12	\\
+$n_4$ & 0 & 2 & 5 & 5 & $\{t_1,t_2\}$ &	3.0		& 	0.208	&	0.04	\\
+$n_5$ & 0 & 3 & 5 & 2 & $\{t_1,t_4\}$ &	2.5		&	0.208	&	0.28
+\end{tabular}
+\end{table}
 
 \section{Related Work}\label{s:3}
 
@@ -444,6 +471,8 @@ Predator Prey & $\dot{x} = x  \cdot \left( 4 - x - \frac{y}{1+x} \right)$, $ \do
 Shear Flow & $\dot{\theta} = \cot (\phi) \cdot cos(\theta)$, $ \dot{\phi} = \left(\cos ^2 (\phi) + 0.1 \cdot  \sin^2 (\phi)\right) \cdot sin(\theta)$	&  $\theta_0 \in [-\pi,\pi]$, $\phi_0 \in [-\pi/2,\pi/2]$ & 400 \\
 van der Pol oscillator & $\dot{x} = 10 \cdot  \left(y - \frac{1}{3} \cdot (x^3-x) \right)$	, $ \dot{y} = -\frac{1}{10} \cdot x$		& $x,y \in [0,1]$  & 400 \\ \midrule
 \end{tabularx}
+\end{table}
+\begin{table}
 \begin{tabularx}{\columnwidth}{X X r r r} 
 \multicolumn{5}{c}{Program Synthesis}\\ 
 Problem	& Input & Output	& Training Cases & Test Cases \\\midrule
