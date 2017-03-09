@@ -326,7 +326,7 @@ In Table~\ref{tbl:ex}, the selection probabilities for the example population ar
 
 \section{Multi-objective Interpretation of Lexicase Selection}
 
-Objectives and training cases are fundamentally different entities: objectives define the goals of the task being learned, whereas cases are the units by which progress towards those objectives is measured. By this criteria, lexicase selection and multi-objective optimization have historically been differentiated~\cite{helmuth_general_2015}, although there is clearly a ``multi-objective" interpretation of the behavior of lexicase selection with respect to the training cases. If we assume for a moment that we treat individual fitness cases as objectives to solve, we can consider most learnign tasks to be high-dimensional, many-objective optimization problems. At this scale, the most popular multi-objective methods (e.g. NSGA-II and SPEA-2) tend to perform poorly, a behavior that has been explained in literature~\cite{wagner_pareto-_2007, farina_optimal_2002}. Farina and Amato~\cite{farina_optimal_2002} point out two short-comings of these multi-objective methods when many objectives are considered: \begin{quote}
+Objectives and training cases are fundamentally different entities: objectives define the goals of the task being learned, whereas cases are the units by which progress towards those objectives is measured. By this criteria, lexicase selection and multi-objective optimization have historically been differentiated~\cite{helmuth_general_2015}, although there is clearly a ``multi-objective" interpretation of the behavior of lexicase selection with respect to the training cases. If we assume for a moment that we treat individual fitness cases as objectives to solve, we can consider most learning tasks to be high-dimensional many-objective optimization problems. At this scale, the most popular multi-objective methods (e.g. NSGA-II and SPEA-2) tend to perform poorly, a behavior that has been explained in literature~\cite{wagner_pareto-_2007, farina_optimal_2002}. Farina and Amato~\cite{farina_optimal_2002} point out two short-comings of these multi-objective methods when many objectives are considered: \begin{quote}
 the Pareto definition of optimality in a multi-criteria decision making problem can be unsatisfactory due to essentially two reasons: the number of improved or equal objective values is not taken into account, the (normalized) size of improvements is not taken into account
 \end{quote}
 
@@ -365,16 +365,30 @@ Interestingly, the worst-case complexity of NSGA-II is the best-case complexity 
 Here we define Pareto dominance relations with respect to the training cases. 
 
 \medskip
-\noindent {\bf Definition:} $n_1$ dominates $n_2$, i.e., ${n_1} \prec {n_2}$, if $e_j(n_1) \leq e_j(n_2) \;
-\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,N\}$ for which $e_j(n_1) < e_j(n_2)$. \bigskip
+\noindent {\bf Definition 1:} $n_1$ {\it dominates} $n_2$, i.e., ${n_1} \prec {n_2}$, if $e_j(n_1) \leq e_j(n_2) \;
+\forall j  \in \{1,\dots,T\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) < e_j(n_2)$. \bigskip
 \bigskip
 
 \medskip
-\noindent \textbf{Theorem 1:} Individuals selected by lexicase selection are non-dominated in $\mathcal{N}$ with respect to the training cases $\mathcal{T}$. 
+\noindent {\bf Definition 2:} The {\it Pareto front} of $\mathcal{N}$ is the subset of $\mathcal{N}$ that is non-dominated with respect to $\mathcal{T}$; i.e., $n \in \mathcal{N}$ is on the Pareto front if $n \nprec m \; \forall \; m \in \mathcal{N}$. 
+\bigskip
+
+\medskip
+\noindent {\bf Definition 3:} $n \in \mathcal{N}$ is a {\it Pareto front boundary} if $n$ is on the Pareto front of $\mathcal{N}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. \bigskip
+\bigskip
+
+With these definitions in mind, we show that individuals selected by lexicase are on the Pareto front boundaries. 
+
+\medskip
+\noindent \textbf{Theorem 1:} If individuals from a population $\mathcal{N}$ are selected by lexicase selection, those individuals are located at Pareto front boundaries of $\mathcal{N}$ with respect to $\mathcal{T}$. 
 \medskip
 
-\noindent \textbf{Proof:} Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by lexicase selection. Suppose $n_1 \prec n_2$. Then $e_j(n_1) \leq e_j(n_2) \;
-\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,N\}$ for which $e_j(n_1) < e_j(n_2)$. Therefore $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ for which $n_2$ is removed from selection due to $n_1$. Therefore $n_2$ cannot be selected by lexicase selection, the supposition is false, and the theorem is true. 
+\noindent \textbf{Proof:} First, we prove by contradiction that individuals selected by lexicase are on the Pareto front. We then prove these individuals to be Pareto front boundaries. 
+
+First: Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by lexicase selection. Suppose $n_1 \prec n_2$. Then $e_j(n_1) \leq e_j(n_2) \;
+\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) < e_j(n_2)$. Therefore $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ for which $n_2$ is removed from selection due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition is false. Therefore $n_1$ and $n_2$ must be on the Pareto front. 
+
+Second: let $n \in \mathcal{N}$ be an individual in a population selected by lexicase selection. Then by definition of the algorithm, $\exists j \in \{1,\dots,T\}$ for which $e_j(n) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. Therefore according to Definition 3, $n$ is a Pareto front boundary of $\mathcal{N}$.  
 \bigskip
 
 
@@ -383,17 +397,17 @@ We can extend Theorem 1 to $\epsilon$-lexicase selection for conditions in which
 
 \medskip
 \noindent {\bf Definition:} $n_1$ $\epsilon$-dominates $n_2$, i.e., ${n_1} \prec_{\epsilon} {n_2}$, if $e_j(n_1) + \epsilon_j \leq e_j(n_2)  \;
-\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,N\}$ for which $e_j(n_1) + \epsilon_j < e_j(n_2) $. $\epsilon_j$\bigskip
+\forall j  \in \{1,\dots,T\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) + \epsilon_j < e_j(n_2) $, $\epsilon_j>0$\bigskip
 \bigskip
 
 In this case, the analogous condition holds for individuals selected with $\epsilon$-lexicase selection. 
 
 \medskip
-\noindent \textbf{Theorem 2:} Individuals selected by $\epsilon$-lexicase selection are non-$\epsilon$-dominated in $\mathcal{N}$ with respect to the training cases $\mathcal{T}$. 
+\noindent \textbf{Theorem 2:} If $\epsilon$ is defined according to Eqn.~\ref{eq:ep}, and if individuals are selected from a population $\mathcal{N}$ by $\epsilon$-lexicase selection, then those individuals are non-$\epsilon$-dominated in $\mathcal{N}$ with respect to the training cases $\mathcal{T}$. 
 \medskip
 
 
-\noindent \textbf{Proof:} Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ in every selection event for which $n_2$ is removed from selection due to $n_1$. Therefore $n_2$ cannot be selected by lexicase selection, the supposition is false, and the theorem is true. 
+\noindent \textbf{Proof:} Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ in every selection event for which $n_2$ is removed from selection due to $n_1$. Therefore $n_2$ cannot be selected by $\epsilon$-lexicase selection, the supposition is false, and the theorem is true. 
 \bigskip
 
 \section{Illustrative Example}
@@ -421,6 +435,60 @@ $n_5$ & 0 & 3 & 5 & 2 & $\{t_1,t_4\}$ &	2.5		&	0.208	&	0.28
 \end{tabular}
 \end{table}
 
+\begin{table}
+\centering
+\scriptsize
+\caption{Example population with test case performances and selection probabilities according to the different algorithms.}\label{tbl:ex2}
+\begin{tabularx}{\textwidth}{X|rrrrr|r|rrrrr}\toprule
+$\mathcal{N}$ & \multicolumn{5}{c}{Cases} & Mean & \multicolumn{5}{c}{Probability of Selection} \\
+& $t_1$ & $t_2$ & $t_3$ & $t_4$ & $t_5$ &&	tourn	&	lex	&	$\epsilon$ lex static	&	$\epsilon$ lex semi	&	$\epsilon$ lex dyn\\ \midrule
+$n_1$	&0.0	&	1.1	&	2.2	&	3.0	&	5.0 & 2.26	&	0.111	&	0.200	&	0.000	&	0.067	&	0.033\\ 
+$n_2$	&0.1	&	1.2	&	2.0	&	2.0	&	6.0 & 2.26	&	0.111	&	0.000	&	0.150	&	0.117	&	0.200\\ 
+$n_3$	&0.2	&	1.0	&	2.1	&	1.0	&	7.0 & 2.26	&	0.111	&	0.000	&	0.150	&	0.117	&	0.117\\ 
+$n_4$	&1.0	&	2.1	&	0.2	&	0.0	&	8.0 & 2.26	&	0.111	&	0.200	&	0.300	&	0.200	&	0.167\\ 
+$n_5$	&1.1	&	2.2	&	0.0	&	4.0	&	4.0 & 2.26	&	0.111	&	0.200	&	0.000	&	0.050	&	0.050\\ 
+$n_6$	&1.2	&	2.0	&	0.1	&	5.0	&	3.0 & 2.26	&	0.111	&	0.000	&	0.000	&	0.050	&	0.033\\ 
+$n_7$	&2.0	&	0.1	&	1.2	&	6.0	&	2.0 & 2.26	&	0.111	&	0.000	&	0.133	&	0.133	&	0.133\\ 
+$n_8$	&2.1	&	0.2	&	1.0	&	7.0	&	1.0 & 2.26	&	0.111	&	0.000	&	0.133	&	0.133	&	0.217\\ 
+$n_9$	&2.2	&	0.0	&	1.1	&	8.0	&	0.0 & 2.26	&	0.111	&	0.400	&	0.133	&	0.133	&	0.050\\  \midrule
+$\epsilon$	&	0.9	& 0.9	&	0.9	&	2.0	& 2.0	&&&&&&\\ \bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Illlustrative Example 2} A more complex population semantic structure is presented in Table~\ref{tbl:ex2} featuring floating point errors. In this case, the population semantics are completely unique, although they result in the same mean error across the training cases, as shown in the ``Mean" column. As a result, tournament selection picks uniformly from among these individuals. 
+
+As mentioned earlier, with unique populations, lexicase selection is proportional to the number of cases for which an individual is elite. This leads lexicase selection to pick from among the 4 individuals that are elite on cases, i.e. $n_1$ ($t_1$), $n_4$ ($t_4$), $n_5$ ($t3$), and $n_9$ ($t_2$,$t_5$), with respective probabilities 0.2, 0.2, 0.2, and 0.4. 
+
+Due to its strict definition of elitism, lexicase selection does not account for the fact other individuals are very close to being elite on these cases as well. The $\epsilon$-lexicase variants address this as noted by the smoother distribution of selection probabilities among this population. Focusing first on static $\epsilon$-lexicase selection, it is worth illustrating the pass conditions for the population by applying the $\epsilon$ threshold, yielding the following semantics:
+
+\begin{center}
+\begin{tabular}{lrrrrr}
+& $t_1$ & $t_2$ & $t_3$ & $t_4$ & $t_5$ \\
+$n_1$	&0	&	1	&	1	&	1	&	1\\ 
+$n_2$	&0	&	1	&	1	&	0	&	1\\ 
+$n_3$	&0	&	1	&	1	&	0	&	1\\ 
+$n_4$	&1	&	1	&	0	&	0	&	1\\ 
+$n_5$	&1	&	1	&	0	&	1	&	1\\ 
+$n_6$	&1	&	1	&	0	&	1	&	1\\ 
+$n_7$	&1	&	0	&	1	&	1	&	0\\ 
+$n_8$	&1	&	0	&	1	&	1	&	0\\ 
+$n_9$	&1	&	0	&	1	&	1	&	0\\ 
+\end{tabular}
+\end{center}
+ 
+The selection probabilities for static $\epsilon$ lexicase selection are equivalent to the selection probabilities of lexicase selection on this converted semantic matrix. Despite elitism on case $t_1$, $n_1$ is not selected since $n_2$ and $n_3$ are $\epsilon$-elite on this case as well as $t_4$. Consider $n_4$, which has a higher probability of selection under static $\epsilon$-lex than lexicase selection. This is due to it being $\epsilon$-elite on a unique combination of cases: $t_3$ and $t_4$. Lastly $n_8$ is selected in equal proportions to $n_7$ and $n_6$ since all are within $\epsilon$ of the elite error on the same cases. 
+
+Semi-dynamic $\epsilon$ lexicase selection allows for all 9 individuals to be selected with varying proportions that are similar to those derived for static $\epsilon$ lexicase selection. Selection probabilities for $n_1$ illustrate the differences in the static and semi-dynamic variants: $n_1$ has a chance for selection in the semi-dynamic case because when $t_1$ is selected as the first case, $n_1$ is within $\epsilon$ of the best case errors {\it among the pool}, i.e. $\{n_1$, $n_2$, $n_3\}$, for any subsequent order of cases. The probability of selection for $n_5$ and $n_6$ follow the same pattern.
+
+Dynamic $\epsilon$-lexicase selection produces the most differentiated selection pressure for this example. Consider individual $n_8$ which is the most likely to be selected for this example. It is selected more often than $n_7$ or $n_9$ due to the adaptations to $\epsilon$ as the selection pool is winnowed. For example, $n_8$ is selected by case sequence $\{t_2,t_1,t_3\}$, for which the selection pool takes the following form after each case: $\{n_7, n_8, n_9\}, \{n_7, n_8\}, \{n_8\}$. Under the other semi-dynamic $\epsilon$ lexicase selection, $n_7$ and $n_8$ would not be removed by these cases due to the fixed nature of $\epsilon$ for those cases. The probabilities of selection for the population in Table~\ref{tbl:ex2} is shown graphically in Figure~\ref{fig:prob}. 
+
+\begin{figure}
+\centering
+  \includegraphics[height = 0.4\textheight]{figs/probabilities.pdf}\label{fig:prob}
+  \caption{A graphical representation of the probabilities of selection for the population in Table~\ref{tbl:ex2} according to different selection methods.}\label{fig:boxplot_eps_e}
+\end{figure}
+
+ 
 \section{Related Work}\label{s:3}
 
 
