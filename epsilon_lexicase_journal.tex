@@ -109,7 +109,7 @@ Lexicase selection is a parent selection method that considers test cases separa
 
 
 \section{Preliminaries}
-We denote the population of $N$ programs as $\mathcal{N} = \{n_i\}_{i=1}^N$, the training cases on which they are asses as $\mathcal{T} = \{t_i = (y_i,\mathbf{x}_i)\}_{i=1}^T$, and the errors they produce as $\mathbf{e}_t(n) = (y_t - \hat{y}_t(n))^2$.  
+We denote the population of $N$ programs as $\mathcal{N} = \{n_i\}_{i=1}^N$ and the paired examples on which they learn as $\mathcal{T} = \{t_i = (y_i,\mathbf{x}_i)\}_{i=1}^T$. We refer to elements of $\mathcal{T}$ as ``cases". A program $n \in \mathcal{N}$ produces an approximation $\hat{y}_t(n,\mathbf{x}_t): \mathbb{R}^d \rightarrow \mathbb{R}$ when evaluated on case $t$. We refer to the squared error of this approximation as $e_t(n) = (y_t - \hat{y}_t(n))^2$, and denote the errors produced by a program on all of the training cases as the program's semantics. We use $\mathbf{e_t} \in \mathbb{R}^N$ to refer to the set of all errors in the population on training case $t$. 
 
 $\mathcal{T} = \{ (y_t,\mathbf{x}_t)\}_{t = 1}^N$, using e.g. the mean absolute error (MAE), which is quantified for individual program $i \in P$ as:
 \begin{equation}
@@ -130,8 +130,9 @@ Lexicase selection is a parent selection technique based on lexicographic orderi
 The lexicase selection algorithm for a single selection event is presented below: 
 
 \noindent{\footnotesize
+
 \begin{tabularx}{\textwidth}{lX}
-\multicolumn{2}{c}{\textbf{Lexicase Selection}} \\ 
+\multicolumn{2}{c}{\textbf{Algorithm 1: Lexicase Selection}} \\ 
 \texttt{GetLexicaseParent}($\mathcal{N,T}$) 	:						&	\\
 \hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
@@ -170,7 +171,9 @@ The lexicase selection algorithm for a single selection event is presented below
 %  \end{algorithmic}
 %\end{algorithm}
 \section{{\large $\epsilon$}-Lexicase Selection}\label{s:2}
-
+\begin{equation}\label{eq:ep}
+\epsilon_t = \text{median}(\mathbf{e_t} - \text{median}(\mathbf{e_t}))
+\end{equation}
 \noindent{\footnotesize
 \begin{tabularx}{\textwidth}{lX}
 \multicolumn{2}{c}{\textbf{Static $\epsilon$-Lexicase Selection}} \\ 
@@ -341,12 +344,12 @@ Interestingly, the worst-case complexity of NSGA-II is the best-case complexity 
 \begin{minipage}{0.49\textwidth}
 \centering
   \includegraphics[width = \textwidth]{figs/lex_pareto.pdf}\label{fig:lex_pareto}
-  \caption{An illstration of the performance of lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals on the Pareto front. In each case, the selection ordering shown is $\{t_1,t_2\}$. }
+  \caption{An illustration of the performance of lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals on the Pareto front. In each case, the selection ordering shown is $\{t_1,t_2\}$. }
 \end{minipage}
 \begin{minipage}{0.49\textwidth}
 \centering
   \includegraphics[width = \textwidth]{figs/ep-lex_pareto.pdf}\label{fig:ep-lex_pareto}
-  \caption{An illstration of the performance of $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals on the Pareto front. In each case, the selection ordering shown is $\{t_1,t_2\}$. }
+  \caption{An illustration of the performance of $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals on the Pareto front. In each case, the selection ordering shown is $\{t_1,t_2\}$. }
 \end{minipage}
 \end{figure}
 
@@ -370,45 +373,59 @@ Here we define Pareto dominance relations with respect to the training cases.
 \bigskip
 
 \medskip
-\noindent {\bf Definition 2:} The {\it Pareto front} of $\mathcal{N}$ is the subset of $\mathcal{N}$ that is non-dominated with respect to $\mathcal{T}$; i.e., $n \in \mathcal{N}$ is on the Pareto front if $n \nprec m \; \forall \; m \in \mathcal{N}$. 
+\noindent {\bf Definition 2:} The {\it Pareto set} of $\mathcal{N}$ is the subset of $\mathcal{N}$ that is non-dominated with respect to $\mathcal{N}$; i.e., $n \in \mathcal{N}$ is in the Pareto set if $n \nprec m \; \forall \; m \in \mathcal{N}$. 
 \bigskip
 
 \medskip
-\noindent {\bf Definition 3:} $n \in \mathcal{N}$ is a {\it Pareto front boundary} if $n$ is on the Pareto front of $\mathcal{N}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. \bigskip
+\noindent {\bf Definition 3:} $n \in \mathcal{N}$ is a {\it Pareto set boundary} if $n$ is in the Pareto set of $\mathcal{N}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. \bigskip
 \bigskip
 
-With these definitions in mind, we show that individuals selected by lexicase are on the Pareto front boundaries. 
+With these definitions in mind, we show that individuals selected by lexicase are on the Pareto set boundaries. 
 
 \medskip
-\noindent \textbf{Theorem 1:} If individuals from a population $\mathcal{N}$ are selected by lexicase selection, those individuals are located at Pareto front boundaries of $\mathcal{N}$ with respect to $\mathcal{T}$. 
+\noindent \textbf{Theorem 1:} If individuals from a population $\mathcal{N}$ are selected by lexicase selection, those individuals are Pareto set boundaries of $\mathcal{N}$ with respect to $\mathcal{T}$. 
 \medskip
 
-\noindent \textbf{Proof:} First, we prove by contradiction that individuals selected by lexicase are on the Pareto front. We then prove these individuals to be Pareto front boundaries. 
+\noindent \textbf{Proof:} First, we prove (by supposing a contradiction) that individuals selected by lexicase are in the Pareto set. Second, we prove these individuals to be Pareto set boundaries. 
 
 First: Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by lexicase selection. Suppose $n_1 \prec n_2$. Then $e_j(n_1) \leq e_j(n_2) \;
-\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) < e_j(n_2)$. Therefore $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ for which $n_2$ is removed from selection due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition is false. Therefore $n_1$ and $n_2$ must be on the Pareto front. 
+\forall j  \in \{1,\dots,N\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) < e_j(n_2)$. Therefore $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ for which $n_2$ is removed from selection due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition is false. Therefore $n_1$ and $n_2$ must be in the Pareto set. 
 
-Second: let $n \in \mathcal{N}$ be an individual in a population selected by lexicase selection. Then by definition of the algorithm, $\exists j \in \{1,\dots,T\}$ for which $e_j(n) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. Therefore according to Definition 3, $n$ is a Pareto front boundary of $\mathcal{N}$.  
+Second: let $n$ be an individual selected from population  $\mathcal{N}$ by lexicase selection. Then by definition of the Algorithm 1, $\exists j \in \{1,\dots,T\}$ for which $e_j(n) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. Therefore, since $n$ is in the Pareto set of $\mathcal{N}$ and according to Definition 3, $n$ is a Pareto set boundary of $\mathcal{N}$.  
 \bigskip
 
 
-We can extend Theorem 1 to $\epsilon$-lexicase selection for conditions in which $\epsilon$ is pre-defined for each fitness case, i.e. in static and dynamic cases, but not when $\epsilon$ is recalculated for each selection pool. The theorem is extended by defining the dominance relation with respect to $\epsilon$, as follows:
+
+\paragraph{Extension to $\epsilon$-lexicase selection}
+We can extend our multi-objective analysis to $\epsilon$-lexicase selection for conditions in which $\epsilon$ is pre-defined for each fitness case, i.e. in static and dynamic cases, but not when $\epsilon$ is recalculated for each selection pool. We first define $\epsilon$ elitism in terms of a relaxed dominance relation and a relaxed Pareto set. We define the dominance relation with respect to $\epsilon$ as follows:
 
 
 \medskip
-\noindent {\bf Definition:} $n_1$ $\epsilon$-dominates $n_2$, i.e., ${n_1} \prec_{\epsilon} {n_2}$, if $e_j(n_1) + \epsilon_j \leq e_j(n_2)  \;
-\forall j  \in \{1,\dots,T\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) + \epsilon_j < e_j(n_2) $, $\epsilon_j>0$\bigskip
+\noindent {\bf Definition 4:} $n_1$ {\it $\epsilon$-dominates} $n_2$, i.e., ${n_1} \prec_{\epsilon} {n_2}$, if $e_j(n_1) + \epsilon_j \leq e_j(n_2)  \;
+\forall j  \in \{1,\dots,T\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) + \epsilon_j < e_j(n_2) $, where $\epsilon_j>0$ is defined according to Eqn.~\ref{eq:ep}\bigskip
+\bigskip
+\medskip
+
+\noindent {\bf Definition 5:} The {\it $\epsilon$-Pareto set} of $\mathcal{N}$ is the subset of $\mathcal{N}$ that is non-$\epsilon$-dominated with respect to $\mathcal{N}$; i.e., $n \in \mathcal{N}$ is in the Pareto set if $n \nprec_{\epsilon} m \; \forall \; m \in \mathcal{N}$. 
 \bigskip
 
-In this case, the analogous condition holds for individuals selected with $\epsilon$-lexicase selection. 
+\medskip
+\noindent {\bf Definition 6:} $n \in \mathcal{N}$ is an {\it $\epsilon$-Pareto set boundary} if $n$ is in the $\epsilon$-Pareto set of $\mathcal{N}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) + \epsilon_j \leq e_j(m) \; \forall \; m \in \mathcal{N}$, where $\epsilon_j$ is defined according to Eqn~\ref{eq:ep}. \bigskip
+
 
 \medskip
-\noindent \textbf{Theorem 2:} If $\epsilon$ is defined according to Eqn.~\ref{eq:ep}, and if individuals are selected from a population $\mathcal{N}$ by $\epsilon$-lexicase selection, then those individuals are non-$\epsilon$-dominated in $\mathcal{N}$ with respect to the training cases $\mathcal{T}$. 
+\noindent \textbf{Theorem 2:} If $\epsilon$ is defined according to Eqn.~\ref{eq:ep}, and if individuals are selected from a population $\mathcal{N}$ by $\epsilon$-lexicase selection, then those individuals are elements are $\epsilon$-Pareto set boundaries of $\mathcal{N}$.  
 \medskip
 
 
-\noindent \textbf{Proof:} Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ in every selection event for which $n_2$ is removed from selection due to $n_1$. Therefore $n_2$ cannot be selected by $\epsilon$-lexicase selection, the supposition is false, and the theorem is true. 
+\noindent \textbf{Proof:} First: Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ in every selection event for which $n_2$ is removed from selection due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition is false, and therefore $n_1$ and $n_2$ must be in the Pareto set of $\mathcal{N}$. 
+
+Second: let $n$ be an individual selected from population $\mathcal{N}$ by static or semi-dynamic $\epsilon$-lexicase selection. Then by definition of Algorithm 2 or 3, $\exists j \in \{1,\dots,T\}$ for which $e_j(n) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. Therefore, since $n$ is in the $\epsilon$-Pareto set of $\mathcal{N}$ and according to Definition 3, $n$ is an $\epsilon$-Pareto set boundary of $\mathcal{N}$.  
 \bigskip
+
+The notion of the selection of Pareto set boundaries by lexicase selection is illustrated in Figure~\ref{fig:lex_pareto} for a scenario with two fitness cases. Given the case sequence $\{t_1, t_2\}$, individuals would first be filtered to the two elite individuals on $e_1$, and then to the individual among those two that is best on $e_2$, i.e. the selected square individual. Note that this individual exists at the Pareto set boundary. Given the opposite order of cases, i.e. $\{t_2, t_1\}$, the individual on the other end of the Pareto set (the other boundary in case space) would be selected.   
+
+Consider the analogous case for semi-dynamic $\epsilon$-lexicase selection illustrated in Figure~\ref{fig:ep-lex_pareto}. 
 
 \section{Illustrative Example}
 \paragraph{Example}
@@ -439,7 +456,7 @@ $n_5$ & 0 & 3 & 5 & 2 & $\{t_1,t_4\}$ &	2.5		&	0.208	&	0.28
 \centering
 \scriptsize
 \caption{Example population with test case performances and selection probabilities according to the different algorithms.}\label{tbl:ex2}
-\begin{tabularx}{\textwidth}{X|rrrrr|r|rrrrr}\toprule
+\begin{tabularx}{\textwidth}{X|rrrrr|r|R{2em}R{2em}R{2em}R{2em}R{2em}}\toprule
 $\mathcal{N}$ & \multicolumn{5}{c}{Cases} & Mean & \multicolumn{5}{c}{Probability of Selection} \\
 & $t_1$ & $t_2$ & $t_3$ & $t_4$ & $t_5$ &&	tourn	&	lex	&	$\epsilon$ lex static	&	$\epsilon$ lex semi	&	$\epsilon$ lex dyn\\ \midrule
 $n_1$	&0.0	&	1.1	&	2.2	&	3.0	&	5.0 & 2.26	&	0.111	&	0.200	&	0.000	&	0.067	&	0.033\\ 
