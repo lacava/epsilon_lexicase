@@ -339,20 +339,6 @@ Interestingly, the worst-case complexity of NSGA-II is the best-case complexity 
 
 
 
-\begin{figure}
-
-\begin{minipage}{0.49\textwidth}
-\centering
-  \includegraphics[width = \textwidth]{figs/lex_pareto.pdf}\label{fig:lex_pareto}
-  \caption{An illustration of the performance of lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals on the Pareto front. In each case, the selection ordering shown is $\{t_1,t_2\}$. }
-\end{minipage}
-\begin{minipage}{0.49\textwidth}
-\centering
-  \includegraphics[width = \textwidth]{figs/ep-lex_pareto.pdf}\label{fig:ep-lex_pareto}
-  \caption{An illustration of the performance of $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals on the Pareto front. In each case, the selection ordering shown is $\{t_1,t_2\}$. }
-\end{minipage}
-\end{figure}
-
 %Here is a detailed look at selection for program $n_1$:
 %\begin{align*}
 %P_{sel}(n_1 | \mathcal{N}, \mathcal{T}) &= \frac{1}{|\{t_1,t_2,t_3,t_4\}|}  \sum_{k_s \in \{t_2,t_4\}}{ P_{sel} \left( n_1 | \mathcal{N}(m|k_s \in K_m(\mathcal{T})), \mathcal{T}(t|t \neq k_s) \right)}  \\
@@ -410,7 +396,7 @@ We can extend our multi-objective analysis to $\epsilon$-lexicase selection for 
 \bigskip
 
 \medskip
-\noindent {\bf Definition 6:} $n \in \mathcal{N}$ is an {\it $\epsilon$-Pareto set boundary} if $n$ is in the $\epsilon$-Pareto set of $\mathcal{N}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) + \epsilon_j \leq e_j(m) \; \forall \; m \in \mathcal{N}$, where $\epsilon_j$ is defined according to Eqn~\ref{eq:ep}. \bigskip
+\noindent {\bf Definition 6:} $n \in \mathcal{N}$ is an {\it $\epsilon$-Pareto set boundary} if $n$ is in the $\epsilon$-Pareto set of $\mathcal{N}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) \leq e_j(m)+ \epsilon_j \; \forall \; m \in \mathcal{N}$, where $\epsilon_j$ is defined according to Eqn~\ref{eq:ep}. \bigskip
 
 
 \medskip
@@ -418,14 +404,33 @@ We can extend our multi-objective analysis to $\epsilon$-lexicase selection for 
 \medskip
 
 
-\noindent \textbf{Proof:} First: Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ in every selection event for which $n_2$ is removed from selection due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition is false, and therefore $n_1$ and $n_2$ must be in the Pareto set of $\mathcal{N}$. 
+\noindent \textbf{Proof:} First: Let $n_1$ and $n_2$ be individuals selected from $\mathcal{N}$ by static or semi-dynamic $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ in every selection event for which $n_2$ is removed from selection due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition $n_1 \prec_{\epsilon} n_2$ is false.  Therefore $n_1$ and $n_2$ must be in the $\epsilon$-Pareto set of $\mathcal{N}$ to be selected. 
 
-Second: let $n$ be an individual selected from population $\mathcal{N}$ by static or semi-dynamic $\epsilon$-lexicase selection. Then by definition of Algorithm 2 or 3, $\exists j \in \{1,\dots,T\}$ for which $e_j(n) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. Therefore, since $n$ is in the $\epsilon$-Pareto set of $\mathcal{N}$ and according to Definition 3, $n$ is an $\epsilon$-Pareto set boundary of $\mathcal{N}$.  
+Second: let $n$ be an individual selected from population $\mathcal{N}$ by static or semi-dynamic $\epsilon$-lexicase selection. Then by definition of Algorithm 2 or 3, $\exists j \in \{1,\dots,T\}$ for which $e_j(n) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. Since $n$ is in the $\epsilon$-Pareto set of $\mathcal{N}$ and according to Definition 3, $n$ must be a $\epsilon$-Pareto set boundary of $\mathcal{N}$.  
 \bigskip
 
-The notion of the selection of Pareto set boundaries by lexicase selection is illustrated in Figure~\ref{fig:lex_pareto} for a scenario with two fitness cases. Given the case sequence $\{t_1, t_2\}$, individuals would first be filtered to the two elite individuals on $e_1$, and then to the individual among those two that is best on $e_2$, i.e. the selected square individual. Note that this individual exists at the Pareto set boundary. Given the opposite order of cases, i.e. $\{t_2, t_1\}$, the individual on the other end of the Pareto set (the other boundary in case space) would be selected.   
+The notion of the selection of Pareto set boundaries by lexicase selection is illustrated in Figure~\ref{fig:lex_pareto} for a scenario with two fitness cases. Each point in the plot represents an individual, and the squares are the Pareto set. Under a lexicase selection event with case sequence $\{t_1, t_2\}$, individuals would first be filtered to the two left-most individuals that are elite on $e_1$, and then to the individual among those two that is best on $e_2$, i.e. the selected square individual. Note that the selected individual is a Pareto set boundary. Given the opposite order of cases, i.e. $\{t_2, t_1\}$, the individual on the other end of the Pareto set (the other boundary) would be selected.   
 
-Consider the analogous case for semi-dynamic $\epsilon$-lexicase selection illustrated in Figure~\ref{fig:ep-lex_pareto}. 
+Consider the analogous case for semi-dynamic $\epsilon$-lexicase selection illustrated in Figure~\ref{fig:ep-lex_pareto}. In this case the Pareto set is indicated again by squares. Under a semi-dynamic $\epsilon$-lexicase selection event with case order $\{t_1, t_2\}$, the population would first be filtered to the 4 left-most individuals that are within $\epsilon_1$ of the elite error on case $t_1$, and then the indicated square would be selected by being the only individual within $\epsilon_2$ of the elite error on $t_2$ among the current pool. It is important to note that that although the selected individual is an $\epsilon$-Pareto set boundary by Definition 6, it is {\it not} a boundary of the Pareto set. Theorem 2 only guarantees that the selected program is within $\epsilon$ of the best error for at least one case, which in this scenario is $t_1$. 
+
+Comparing Figures~\ref{fig:lex_pareto} and~\ref{fig:ep-lex_pareto} illustrates the effect of introducing $\epsilon$ to the filter conditions in lexicase: it reduces the selectivity of each case, ultimately resulting in the selection of individuals that are not as extremely positioned in semantic space. 
+
+\begin{figure}
+
+%\begin{minipage}{0.49\textwidth}
+\centering
+  \includegraphics[width = 0.5\textwidth]{figs/lex_pareto.pdf}
+  \caption{An illustration of the performance of lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set. A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:lex_pareto}
+\end{figure}
+%\end{minipage}
+%\begin{minipage}{0.49\textwidth}
+\begin{figure}
+\centering
+  \includegraphics[width = 0.5\textwidth]{figs/ep-lex_pareto.pdf}
+  \caption{An illustration of the performance of semi-dynamic $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set, and the circles with dotted lines are the individuals that are in the $\epsilon$-Pareto set, which includes the Pareto set as well. A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:ep-lex_pareto}
+%\end{minipage}
+\end{figure}
+
 
 \section{Illustrative Example}
 \paragraph{Example}
@@ -456,6 +461,7 @@ $n_5$ & 0 & 3 & 5 & 2 & $\{t_1,t_4\}$ &	2.5		&	0.208	&	0.28
 \centering
 \scriptsize
 \caption{Example population with test case performances and selection probabilities according to the different algorithms.}\label{tbl:ex2}
+\rowcolors{1}{white}{LightCyan}
 \begin{tabularx}{\textwidth}{X|rrrrr|r|R{2em}R{2em}R{2em}R{2em}R{2em}}\toprule
 $\mathcal{N}$ & \multicolumn{5}{c}{Cases} & Mean & \multicolumn{5}{c}{Probability of Selection} \\
 & $t_1$ & $t_2$ & $t_3$ & $t_4$ & $t_5$ &&	tourn	&	lex	&	$\epsilon$ lex static	&	$\epsilon$ lex semi	&	$\epsilon$ lex dyn\\ \midrule
