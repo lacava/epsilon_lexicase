@@ -1,6 +1,6 @@
 \documentclass[preprint]{article}
 %\renewcommand{\rmdefault}{ppl}
-%\usepackage{personal}
+\usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{placeins}
 
@@ -104,28 +104,43 @@ Lexicase selection is a parent selection method that considers test cases separa
 \end{abstract}
 
 
-\section{INTRODUCTION}
+\section{Introduction}
+  
+Evolutionary computation (EC) traditionally assigns scalar fitness values to candidate solutions to determine how to guide search. In the case of genetic programming (GP), this fitness value attempts to capture how closely, on average, the behavior of the candidate programs match the desired behavior. Take for example the task of symbolic regression, in which we attempt to find a model using a set of training examples, i.e. cases or tests. A typical fitness measure is the mean squared error (MSE), which averages the squared differences between the model's outputs and the target output. Given that individual comparisons of each program's output to $y$ is reduced to a single value, the relationship of $\hat{y}$ to $y$ can only be represented crudely by the fitness value. The fitness score thereby restricts the information conveyed to the search process about candidate programs relative to the description of their behavior available in the raw comparisons of the output to the target (i.e., the squared error), information which could help guide the search~\cite{krawiec_automatic_2015}. This observation has led to increased interest in the development of methods that can leverage the program outputs, i.e. semantics, directly to drive search more effecitvely~\cite{vanneschi_survey_2014}.
+
+In addition to reducing information, averaging test performance assumes all tests are equally informative, leading to the potential loss of individuals who perform poorly {\it on average} even if they are the best on a test case that is difficult for most of the population to solve. This is particularly relevant for problems that require different modes of behavior to produce an adequate solution to the problem~\cite{spector_assessment_2012}. The underlying assumption of GP in this regard is that selection pressure should be applied evenly with respect to test cases, ignoring the fact that cases that comprise the problem are unlikely to be uniformly difficult. As a result, the search is likely to benefit if it can take into account the difficulty of specific cases by recognizing individuals that perform well on harder parts of the problem. Underlying this last point is the assumption that GP solves problems by identifying, propagating and recombining partial solutions (i.e. building blocks) to the task at hand(cite schema Poli). As a result, a program that performs well on unique subsets of the problem may imply a partial solution to our task. 
+
+Several methods have been proposed to reward individuals with uniquely good test performance, such as implicit fitness sharing (IFS)~\cite{mckay_investigation_2001}, historically assessed hardness~\cite{klein_genetic_2008}, and co-solvability~\cite{schaefer_using_2010}, all of which assign greater weight to fitness cases that are judged to be more difficult in view of the population performance. Perhaps the most effective parent selection method designed to account for case hardnedss is lexicase selection~\cite{helmuth_solving_2014,spector_assessment_2012}. In particular, ``global  pool,  uniform  random  sequence,  elitist  lexicase  selection"~\cite{spector_assessment_2012}, which we refer to simply as lexicase selection, has outperformed other similarly-motivated methods in recent studies~\cite{helmuth_general_2015-1,liskowski_comparison_2015}. Despite these gains, it fails to produce such benefits when applied to continuous symbolic regression problems, due to its method of selecting individuals based on test case elitism. For this reason we recently proposed~\cite{la_cava_epsilon-lexicase_2016} modulating the case pass conditions in lexicase selection using an automatically defined $\epsilon$ threshold, by allows the benefits of lexicase selection to be achieved in continuous domains. 
+
+To date, the work to analyze lexicase selection and $\epsilon$-lexicase selection has mostly been empirical studies, rather than algorithmic analysis. Previous work has not explicitly described the probabilities of selection under lexicase selection or how lexicase selection relates to multi-objective methods. The foremost purpose of this paper is to lay the groundwork for describing how lexicase selection and $\epsilon$-lexicase selection pressure selection compared to traditional approaches. With this in mind, in \S\ref{s:prob} we derive an equation that describes the expected probability of selection for individuals in a given population based on their behavior on the training cases, for all variants of lexicase selection. Then in \S\ref{s:mo}, we analyze lexicase and $\epsilon$ lexicase selection from a multi-objective viewpoint, in which we imagine each training case to be an objective. We prove that individuals selected by lexicase selection exist at the boundaries of the Pareto front in the high-dimensional space defined by the program error vectors. We show via an illustrative example population in \S\ref{s:ex} how the probabilities of selection differ under tournament, lexicase, and $\epsilon$-lexicase selection. 
+
+We propose two new methods for defining pass conditions in $\epsilon$-lexicase which are shown to improve the method compared to the original implementation.   A final set of experiments compares variants of $\epsilon$-lexicase selection to several existing selection techniques on a set of real world benchmark problems. The results show that ability of $\epsilon$-lexicase selection to improve the predictive accuracy of models on these problems. We examine in detail the diversity of programs during these runs, as well as the number of cases used in selection events to validate our hypothesis that $\epsilon$-lexicase selection allows for more cases to be used in selecting individuals compared to lexicase selection. 
+
+
   
 
 
 \section{Preliminaries}
+In symbolic regression, we attempt to find a model $\hat{y}(\mathbf{x}): \mathbb{R}^d \rightarrow \mathbb{R}$ using a set of training examples $\mathcal{T} = \{t_i = (y_i,\mathbf{x}_i)\}_{i=1}^T$, where $\mathbf{x}$ is a $d$-dimensional vector of variables i.e. features, and $y$ is the desired output. A typical fitness measure is the mean squared error (MSE), which averages the squared differences between $\hat{y}$ and $y$.
+
 We denote the population of $N$ programs as $\mathcal{N} = \{n_i\}_{i=1}^N$ and the paired examples on which they learn as $\mathcal{T} = \{t_i = (y_i,\mathbf{x}_i)\}_{i=1}^T$. We refer to elements of $\mathcal{T}$ as ``cases". A program $n \in \mathcal{N}$ produces an approximation $\hat{y}_t(n,\mathbf{x}_t): \mathbb{R}^d \rightarrow \mathbb{R}$ when evaluated on case $t$. We refer to the squared error of this approximation as $e_t(n) = (y_t - \hat{y}_t(n))^2$, and denote the errors produced by a program on all of the training cases as the program's semantics. We use $\mathbf{e_t} \in \mathbb{R}^N$ to refer to the set of all errors in the population on training case $t$. 
 
 $\mathcal{T} = \{ (y_t,\mathbf{x}_t)\}_{t = 1}^N$, using e.g. the mean absolute error (MAE), which is quantified for individual program $i \in P$ as:
 \begin{equation}
-f(i,\mathcal{T}) = \frac{1}{N} \sum_{t \in \mathcal{T}}{|y_t - \hat{y}_t(i,\mathbf{x}_t)|} \label{eq:fit} 
+MSE(\mathcal{T}) = \frac{1}{N} \sum_{t \in \mathcal{T}}{|y_t - \hat{y}_t(\mathbf{x}_t)|} \label{eq:fit} 
 \end{equation}
+
 where $\mathbf{x} \in \mathbb{R}^D$ represents the variables or features, the target output is $y$ and $\hat{y}(i,\mathbf{x})$ is the program's output. As a result of the aggregation of the absolute error vector $e(i) = |y - \hat{y}(i,\mathbf{x})|$ in Eq.~(\ref{eq:fit}), the relationship of $\hat{y}$ to $y$ is represented crudely when choosing models to propagate.
 
-\section{Lexicase Selection}\label{s:2}
-Lexicase selection is a parent selection technique based on lexicographic ordering of test (i.e. fitness) cases.  Each parent selection event proceeds as follows: 
+\section{Lexicase Selection}\label{s:lex}
+Lexicase selection is a parent selection technique based on lexicographic ordering of test (i.e. fitness) cases.   
 
-\begin{enumerate}
-\item The entire population is added to the selection pool.
-\item The fitness cases are shuffled.
-\item Individuals in the pool with a fitness worse than the best fitness on this case among the pool are removed. 
-\item If more than one individual remains in the pool, the first case is removed and 3 is repeated with the next case. If only one individual remains, it is the chosen parent. If no more fitness cases are left, a parent is chosen randomly from the remaining individuals. 
-\end{enumerate}
+%\begin{enumerate}
+%\item The entire population is added to the selection pool.
+%\item The fitness cases are shuffled.
+%\item Individuals in the pool with a fitness worse than the best fitness on this case among the pool are removed. 
+%\item If more than one individual remains in the pool, the first case is removed and 3 is repeated with the next case. If only one individual remains, it is the chosen parent. If no more fitness cases are left, a parent is chosen randomly from the remaining individuals. 
+%\end{enumerate}
 
 The lexicase selection algorithm for a single selection event is presented below: 
 
@@ -133,92 +148,83 @@ The lexicase selection algorithm for a single selection event is presented below
 
 \begin{tabularx}{\textwidth}{lX}
 \multicolumn{2}{c}{\textbf{Algorithm 1: Lexicase Selection}} \\ 
-\texttt{GetLexicaseParent}($\mathcal{N,T}$) 	:						&	\\
-\hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
+\texttt{GetParent}($\mathcal{N,T}$) 	:						&	\\
+\hspace{1em}	$T' \leftarrow \mathcal{T}$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
 \hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
-\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$ 	&	choose a random case\\
-\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
-\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) = \texttt{elite}				&	reduce selection pool to elites\\
-\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
+\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$ 	&	\hspace{1em}consider a random case\\
+\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	\hspace{1em}determine elite fitness\\
+\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) = \texttt{elite}				&	\hspace{1em}reduce selection pool to elites\\
+\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	\hspace{1em}reduce remaining cases\\
 \hspace{1em} return random choice from $\mathcal{S}$															&	return parent  
 \end{tabularx}
 }
-%\begin{algorithm}
-%  \caption{Lexicase Selection}\label{alg:lexicase}
-%  \begin{algorithmic}[1]
-%    \Statex
-%    \Function{GetParent}{$\mathcal{N}, \mathcal{T}$}
-%    	\Let{$T'$}{shuffle($\mathcal{T}$)} \Comment{Shuffle the test cases}	
-%    	\Let{$N'$}{$\mathcal{N}$}
-%    	\Let{$parent$}{$\emptyset$}
-%		\While{$|T'| > 0$ and $|N'|>1$}
-%      		\Let{\texttt{case}}{$T'[0]$}
-%      		\Let{\texttt{best\_fit}}{$\infty$}
-%        	\For{$n \in N'$}
-%        		\If{fitness of $n$ on \texttt{case} $<$ \texttt{best\_fit}}
-%          			\Let{\texttt{best\_fit}}{fitness of $n$ on \texttt{case}}
-%          			\Let{$parent$}{$n$}
-%          		\ElsIf{fitness of $n$ on \text{case} $=$ \texttt{best\_fit}}	
-%          			\Let{$parent$}{$parent \cup n$}
-%        		\EndIf
-%			\EndFor
-%        	\Let{$T'$}{$T'-$\texttt{case}}
-%        	\Let{$N'$}{$parent$}
-%		\EndWhile
-%	\State \Return{random choice from $parent$}
-%    \EndFunction
-%  \end{algorithmic}
-%\end{algorithm}
+
+Algorithm 1 is very simple to implement because it consists of just a few steps: 1) choosing a case, 2) filtering the selection pool based on that case, and 3) repeating until the cases are exhausted or the selection pool is reduced to one individual. If the selection pool is not reduced by the time each case has been considered, an individual is chosen randomly from the remaining pool, $\mathcal{S}$. 
+
+Under lexicase selection, cases in $\mathcal{T}$ can be thought of as filters that reduce the selection pool to the individuals in the pool that are best on that case. It's important to note that each parent selection event constructs a new path through these filters. The filtering strength of the case is affected by two main factors: 1) its difficulty as defined by the number of individuals that pass it, and 2) its order in the selection event, which varies from selection to selection. Regarding 1), consider two extreme examples: if a case is passed by the whole population, then it will perform no filtering, resulting in no selection pressure; if a case is passed by a single individual, that individual will be selected every time the case is considered for a selection pool containing the individual that passes it. This mechanism allows selective pressure to continually shift to individuals that are elite on cases that are not widely solved in $\mathcal{N}$. Because of 2), cases appear in various orderings during selection, resulting in selective pressure for individuals that solve difficult {\it subsets} of cases. Lexicase selection thereby accounts not only for the difficulty of individual cases but the difficulty of solving arbitrarily-sized subsets of cases. This selection pressure leads to the preservation of high behavioral diversity during evolution~\cite{helmuth_solving_2014, la_cava_epsilon-lexicase_2016}. 
+
+
+
+
 \section{{\large $\epsilon$}-Lexicase Selection}\label{s:2}
+
+Lexicase selection has been shown to be effective in discrete error spaces, both for multi-modal problems~\cite{spector_assessment_2012} and for problems for which every case must be solved exactly to be considered a solution~\cite{helmuth_solving_2014}. In continuous error spaces, however, the requirement for individuals to be elite to pass a case during selection turns out to be overly stringent~\cite{la_cava_epsilon-lexicase_2016}. 
+
 \begin{equation}\label{eq:ep}
 \epsilon_t = \text{median}(\mathbf{e_t} - \text{median}(\mathbf{e_t}))
 \end{equation}
+
+We study three implementations of $\epsilon$-lexicase selection in this paper: static, which is the version used in the conference paper~\cite{la_cava_automatic_2016}, semi-dynamic, in which the error is defined relative to the pool, and dynamic, in which both the error and $\epsilon$ are defined relative to the current selection pool. 
+
 \noindent{\footnotesize
 \begin{tabularx}{\textwidth}{lX}
 \multicolumn{2}{c}{\textbf{Static $\epsilon$-Lexicase Selection}} \\ 
-\texttt{Get\_$\epsilon$-Lexicase\_Parent}($\mathcal{N,T}$) 	:						&	\\
-\hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
+\texttt{GetParent}($\mathcal{N,T}$) 	:						&	\\
+\hspace{1em}	$T' \leftarrow \mathcal{T}$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
 \hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{N}$)) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case\\
 \hspace{1em}	fitness$(n) \leftarrow \not \mathbb{I}(e_t(n) \leq e^*_t(n) + \epsilon_t)$ for $t \in \mathcal{T}$ and $n \in \mathcal{N}$	&	convert fitness using within-$\epsilon$ pass condition\\
 \hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
-\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$  	&	consider the top case\\
-\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
-\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}	&	reduce selection pool to elites\\
-\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
+\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$  	&	\hspace{1em}consider a random case\\
+\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	\hspace{1em}determine elite fitness\\
+\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}	&	\hspace{1em}reduce selection pool to elites\\
+\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	\hspace{1em}reduce remaining cases\\
 \hspace{1em} return random choice from $\mathcal{S}$															&	return parent  
 \end{tabularx}
 }
+
+Static $\epsilon$-lexicase selection can be viewed as a preprocessing step added to lexicase selection in which the program errors are convereted to pass/fail based on an $\epsilon$ threshold defined relative to $e^*_t$, the best error in $\mathcal{N}$ on $t$.  
 
 \noindent{\footnotesize
 \begin{tabularx}{\textwidth}{lX}
 \multicolumn{2}{c}{\textbf{Semi-dynamic $\epsilon$-Lexicase Selection}} \\ 
-\texttt{Get\_$\epsilon$-Lexicase\_Parent}($\mathcal{N,T}$) 	:						&	\\
-\hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
+\texttt{GetParent}($\mathcal{N,T}$) 	:						&	\\
+\hspace{1em}	$T' \leftarrow \mathcal{T}$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
 \hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{N}$)) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case\\
 \hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
-\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$ &	consider the top case\\
-\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
-\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	reduce selection pool to elites\\
-\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
+\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$ &	\hspace{1em}consider a random case\\
+\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	\hspace{1em}determine elite fitness\\
+\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	\hspace{1em}reduce selection pool to elites\\
+\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	\hspace{1em}reduce remaining cases\\
 \hspace{1em} return random choice from $\mathcal{S}$															&	return parent  
 \end{tabularx}
 }
 
+Semi-dynamic $\epsilon$-lexicase selection differs from 
 \noindent{\footnotesize
 \begin{tabularx}{\textwidth}{lX}
 \multicolumn{2}{c}{\textbf{Dynamic $\epsilon$-Lexicase Selection}} \\ 
-\texttt{Get\_$\epsilon$-Lexicase\_Parent}($\mathcal{N,T}$) 	:						&	\\
-\hspace{1em}	$T' \leftarrow \texttt{shuffle(}\mathcal{T})$	&	training cases\\
+\texttt{GetParent}($\mathcal{N,T}$) 	:						&	\\
+\hspace{1em}	$T' \leftarrow \mathcal{T}$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
 \hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
-\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$  	&	consider the top case\\
-\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	determine elite fitness\\
-\hspace{1em}\hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{S}$)) on \texttt{case}	&	determine $\epsilon$ for this case\\
-\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	reduce selection pool to elites\\
-\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	remove top case\\
+\hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$  	&	\hspace{1em}consider a random case\\
+\hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	\hspace{1em}determine elite fitness\\
+\hspace{1em}\hspace{1em}	$\epsilon \leftarrow MAD$(fitness($\mathcal{S}$)) on \texttt{case}	&	\hspace{1em}determine $\epsilon$ for this case\\
+\hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	\hspace{1em}reduce selection pool to elites\\
+\hspace{1em}\hspace{1em}	$\mathcal{T'} \leftarrow \mathcal{T'} - $ \texttt{case}				&	\hspace{1em}reduce remaining cases\\
 \hspace{1em} return random choice from $\mathcal{S}$															&	return parent  
 \end{tabularx}
 }
@@ -258,7 +264,7 @@ The lexicase selection algorithm for a single selection event is presented below
 \begin{table}
 
 \end{table}
-\section{Expected Probabilities of Selection}
+\section{Expected Probabilities of Selection}\label{s:prob}
 What is the probability of an individual being selected, given its performance in a given population on a set of training cases?  
 
 
@@ -327,7 +333,7 @@ P_t = \frac{1}{|S_j|}\left( \left(\frac{\sum_{i=j}^Q{|S_i|}}{N}\right)^r - \left
 
 In Table~\ref{tbl:ex}, the selection probabilities for the example population are shown according to tournament selection. 
 
-\section{Multi-objective Interpretation of Lexicase Selection}
+\section{Multi-objective Interpretation of Lexicase Selection}\label{s:mo}
 
 Objectives and training cases are fundamentally different entities: objectives define the goals of the task being learned, whereas cases are the units by which progress towards those objectives is measured. By this criteria, lexicase selection and multi-objective optimization have historically been differentiated~\cite{helmuth_general_2015}, although there is clearly a ``multi-objective" interpretation of the behavior of lexicase selection with respect to the training cases. If we assume for a moment that we treat individual fitness cases as objectives to solve, we can consider most learning tasks to be high-dimensional many-objective optimization problems. At this scale, the most popular multi-objective methods (e.g. NSGA-II and SPEA-2) tend to perform poorly, a behavior that has been explained in literature~\cite{wagner_pareto-_2007, farina_optimal_2002}. Farina and Amato~\cite{farina_optimal_2002} point out two short-comings of these multi-objective methods when many objectives are considered: \begin{quote}
 the Pareto definition of optimality in a multi-criteria decision making problem can be unsatisfactory due to essentially two reasons: the number of improved or equal objective values is not taken into account, the (normalized) size of improvements is not taken into account
@@ -390,8 +396,11 @@ We can extend our multi-objective analysis to $\epsilon$-lexicase selection for 
 \noindent {\bf Definition 4:} $n_1$ {\it $\epsilon$-dominates} $n_2$, i.e., ${n_1} \prec_{\epsilon} {n_2}$, if $e_j(n_1) + \epsilon_j \leq e_j(n_2)  \;
 \forall j  \in \{1,\dots,T\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) + \epsilon_j < e_j(n_2) $, where $\epsilon_j>0$ is defined according to Eqn.~\ref{eq:ep}\bigskip
 \bigskip
-\medskip
 
+
+It is important to note that this definition of $\epsilon$-dominance differs from a previous $\epsilon$-dominance definition used by Laumanns et. al.~\cite{laumanns_archiving_2002} (cf. Eqn. (6)) in which ${n_1} \prec_{\epsilon} {n_2}$ if \[ e_j(n_1) + \epsilon_j \leq e_j(n_2) \; \forall \; j  \in \{1,\dots,T\}\] According to Definition 4, the $\epsilon$-dominance criteria is more strict, requiring $e_j(n_1) + \epsilon_j < e_j(n_2) $ for at least one $j$. As a result, the non-$\epsilon$-dominated set, defined as the $\epsilon$-Pareto set below, is expected to be as large or larger than the $\epsilon$-approximate Pareto set used in~\cite{laumanns_archiving_2002}. 
+ 
+\medskip
 \noindent {\bf Definition 5:} The {\it $\epsilon$-Pareto set} of $\mathcal{N}$ is the subset of $\mathcal{N}$ that is non-$\epsilon$-dominated with respect to $\mathcal{N}$; i.e., $n \in \mathcal{N}$ is in the Pareto set if $n \nprec_{\epsilon} m \; \forall \; m \in \mathcal{N}$. 
 \bigskip
 
@@ -413,7 +422,7 @@ The notion of the selection of Pareto set boundaries by lexicase selection is il
 
 Consider the analogous case for semi-dynamic $\epsilon$-lexicase selection illustrated in Figure~\ref{fig:ep-lex_pareto}. In this case the Pareto set is indicated again by squares. Under a semi-dynamic $\epsilon$-lexicase selection event with case order $\{t_1, t_2\}$, the population would first be filtered to the 4 left-most individuals that are within $\epsilon_1$ of the elite error on case $t_1$, and then the indicated square would be selected by being the only individual within $\epsilon_2$ of the elite error on $t_2$ among the current pool. It is important to note that that although the selected individual is an $\epsilon$-Pareto set boundary by Definition 6, it is {\it not} a boundary of the Pareto set. Theorem 2 only guarantees that the selected program is within $\epsilon$ of the best error for at least one case, which in this scenario is $t_1$. 
 
-Comparing Figures~\ref{fig:lex_pareto} and~\ref{fig:ep-lex_pareto} illustrates the effect of introducing $\epsilon$ to the filter conditions in lexicase: it reduces the selectivity of each case, ultimately resulting in the selection of individuals that are not as extremely positioned in semantic space. 
+Comparing Figures~\ref{fig:lex_pareto} and~\ref{fig:ep-lex_pareto} illustrates the effect of introducing $\epsilon$ to the filter conditions in lexicase: it reduces the selectivity of each case, ultimately resulting in the selection of individuals that are not as extremely positioned in semantic space. Regarding the position of solutions in this space, it's worth noting the significance of boundary solutions (and near boundary solutions) in the context of multi-objective optimization. Boundary solutions are known to contribute significantly to hypervolume measures~\cite{deb_evaluating_2005}, where the hypervolume is a measure of how well-covered the objective space is by the current set of solutions. The boundary solutions have an infinite score according to NSGA-II's crowding measure~\cite{schoenauer_fast_2000}, with higher being better, meaning they are the first non-dominated solutions to be preserved by selection when the population size is reduced. Nonetheless, multi-objective literature appears divided on how these boundary solutions drive search~\cite{wagner_pareto-_2007}, when the goal of the algorithm is to approximate the optimal Pareto front. In contrast, the goal of GP is to preserve points in the search space that, when combined and varied, yield a single best solution. So while the descriptions above lend insight to the function of lexicase and $\epsilon$-lexicase selection, it's important to remember the different goals of search and the high dimensionality of training cases when compared to objectives.  
 
 \begin{figure}
 
@@ -427,12 +436,12 @@ Comparing Figures~\ref{fig:lex_pareto} and~\ref{fig:ep-lex_pareto} illustrates t
 \begin{figure}
 \centering
   \includegraphics[width = 0.5\textwidth]{figs/ep-lex_pareto.pdf}
-  \caption{An illustration of the performance of semi-dynamic $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set, and the circles with dotted lines are the individuals that are in the $\epsilon$-Pareto set, which includes the Pareto set as well. A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:ep-lex_pareto}
+  \caption{An illustration of the performance of semi-dynamic $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set, and the circles with dotted lines are the subset of Pareto set individuals that are also in the $\epsilon$-Pareto set. A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:ep-lex_pareto}
 %\end{minipage}
 \end{figure}
 
 
-\section{Illustrative Example}
+\section{Illustrative Example}\label{s:ex}
 \paragraph{Example}
 As an example of calculating absolute probabilities, we consider the illustrative problem from the original lexicase selection paper~\cite{spector_assessment_2013}, shown in Table~\ref{tbl:ex}. Using Eqn.~\ref{eq:prob}, the probabilities for each individual can be calculated as follows:
 
@@ -482,7 +491,7 @@ $\epsilon$	&	0.9	& 0.9	&	0.9	&	2.0	& 2.0	&&&&&&\\ \bottomrule
 
 As mentioned earlier, with unique populations, lexicase selection is proportional to the number of cases for which an individual is elite. This leads lexicase selection to pick from among the 4 individuals that are elite on cases, i.e. $n_1$ ($t_1$), $n_4$ ($t_4$), $n_5$ ($t3$), and $n_9$ ($t_2$,$t_5$), with respective probabilities 0.2, 0.2, 0.2, and 0.4. 
 
-Due to its strict definition of elitism, lexicase selection does not account for the fact other individuals are very close to being elite on these cases as well. The $\epsilon$-lexicase variants address this as noted by the smoother distribution of selection probabilities among this population. Focusing first on static $\epsilon$-lexicase selection, it is worth illustrating the pass conditions for the population by applying the $\epsilon$ threshold, yielding the following semantics:
+Due to its strict definition of elitism, lexicase selection does not account for the fact other individuals are very close to being elite on these cases as well. The $\epsilon$-lexicase variants address this as noted by the smoother distribution of selection probabilities among this population. Focusing first on static $\epsilon$-lexicase selection, it is worth illustrating the pass conditions for the population by applying the $\epsilon$ threshold, yielding the following errors:
 
 \begin{center}
 \begin{tabular}{lrrrrr}
@@ -512,11 +521,16 @@ Dynamic $\epsilon$-lexicase selection produces the most differentiated selection
 \end{figure}
 
  
-\section{Related Work}\label{s:3}
+\section{Related Work}\label{s:rw}
 
 
-\section{Experimental Analysis} \label{s:4}
+\section{Experimental Analysis} \label{s:exp}
+The problems studied in this section are listed in Table~\ref{tbl:regression}. The boxplots in Figure~\ref{fig:boxplot_reg} show the test set MSE for various implementations of selection on these problems, and in comparison to Lasso. 
 
+\begin{enumerate}
+\item show the diversity of the populations over time for different methods
+\item show the number of cases used per method for the lexicase implementations
+\end{enumerate}
 \begin{table}
 \scriptsize
 \caption{GP settings.}\label{tbl:symreg_settings}
@@ -529,7 +543,7 @@ ERC range & [-1,1] \\
 Generation limit & 1000 \\
 Trials & 50 \\
 Terminal Set & \{$\mathbf{x}$, ERC, $+$, $-$, $*$, $/$, $\sin$, $\cos$, $\exp$, $\log$\}\\
-Elitism & keep best \\
+Elitism & keep best \\ \bottomrule
 \end{tabularx}
 \end{table}
 \begin{table}
@@ -563,21 +577,20 @@ Shear Flow & $\dot{\theta} = \cot (\phi) \cdot cos(\theta)$, $ \dot{\phi} = \lef
 van der Pol oscillator & $\dot{x} = 10 \cdot  \left(y - \frac{1}{3} \cdot (x^3-x) \right)$	, $ \dot{y} = -\frac{1}{10} \cdot x$		& $x,y \in [0,1]$  & 400 \\ \midrule
 \end{tabularx}
 \end{table}
-\begin{table}
-\begin{tabularx}{\columnwidth}{X X r r r} 
-\multicolumn{5}{c}{Program Synthesis}\\ 
-Problem	& Input & Output	& Training Cases & Test Cases \\\midrule
-Number IO & integer in [-100,100], float in [-100.0, 100.0]	&	printed float & 25 & 1000 \\
-Wallis PI & integer in [1, 200] & float &	150 & 50 \\
-Vector Average & vector of float of length [1,50] with each float in [-1000.0, 1000.0]	& float &	100	&	1000 \\ 
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Effect of population structure on probabilities of selection}
+%\begin{table}
+%\begin{tabularx}{\columnwidth}{X X r r r} 
+%\multicolumn{5}{c}{Program Synthesis}\\ 
+%Problem	& Input & Output	& Training Cases & Test Cases \\\midrule
+%Number IO & integer in [-100,100], float in [-100.0, 100.0]	&	printed float & 25 & 1000 \\
+%Wallis PI & integer in [1, 200] & float &	150 & 50 \\
+%Vector Average & vector of float of length [1,50] with each float in [-1000.0, 1000.0]	& float &	100	&	1000 \\ 
+%\bottomrule
+%\end{tabularx}
+%\end{table}
 
 
-\subsection{Results}\label{s:4 results}
+
+\subsection{Results}\label{s:results}
 \begin{figure}
 \centering
   \includegraphics[width=\textwidth]{figs/regression_boxplots.pdf}\\
@@ -590,10 +603,10 @@ Vector Average & vector of float of length [1,50] with each float in [-1000.0, 1
   \caption{Boxplots of the mean squared error on the test set for 50 randomized trials of each algorithm on the regression benchmark datasets.}\label{fig:boxplot_reg}
 \end{figure}
 
-\section{Discussion}\label{s:5}
+\section{Discussion}\label{s:discuss}
 
 
-\section{Conclusions}\label{s:6}
+\section{Conclusions}\label{s:conclusion}
 
 \section{Acknowledgments}
 

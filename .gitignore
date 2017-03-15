@@ -4,7 +4,7 @@
 *.log 
 *.out 
 *.synctex.gz
-*.fuse
+*.fuse*
 *.svg
 *.jpg
 *.swp
