@@ -131,16 +131,22 @@ We propose two new methods for defining pass conditions in $\epsilon$-lexicase w
 
 
 \section{Preliminaries}
-In symbolic regression, we attempt to find a model $\hat{y}(\mathbf{x}): \mathbb{R}^d \rightarrow \mathbb{R}$ using a set of training examples $\mathcal{T} = \{t_i = (y_i,\mathbf{x}_i)\}_{i=1}^T$, where $\mathbf{x}$ is a $d$-dimensional vector of variables i.e. features, and $y$ is the desired output. A typical fitness measure is the mean squared error (MSE), which averages the squared differences between $\hat{y}$ and $y$.
+In symbolic regression, we attempt to find a model $\hat{y}(\mathbf{x}): \mathbb{R}^d \rightarrow \mathbb{R}$ that maps variables to a target output using a set of training examples $\mathcal{T} = \{t_i = (y_i,\mathbf{x}_i)\}_{i=1}^T$, where $\mathbf{x}$ is a $d$-dimensional vector of variables, i.e. features, and $y$ is the desired output. We refer to elements of $\mathcal{T}$ as ``cases". GP poses the problem as
 
-We denote the population of $N$ programs as $\mathcal{N} = \{n_i\}_{i=1}^N$ and the paired examples on which they learn as $\mathcal{T} = \{t_i = (y_i,\mathbf{x}_i)\}_{i=1}^T$. We refer to elements of $\mathcal{T}$ as ``cases". A program $n \in \mathcal{N}$ produces an approximation $\hat{y}_t(n,\mathbf{x}_t): \mathbb{R}^d \rightarrow \mathbb{R}$ when evaluated on case $t$. We refer to the squared error of this approximation as $e_t(n) = (y_t - \hat{y}_t(n))^2$, and denote the errors produced by a program on all of the training cases as the program's semantics. We use $\mathbf{e_t} \in \mathbb{R}^N$ to refer to the set of all errors in the population on training case $t$. 
-
-$\mathcal{T} = \{ (y_t,\mathbf{x}_t)\}_{t = 1}^N$, using e.g. the mean absolute error (MAE), which is quantified for individual program $i \in P$ as:
-\begin{equation}
-MSE(\mathcal{T}) = \frac{1}{N} \sum_{t \in \mathcal{T}}{|y_t - \hat{y}_t(\mathbf{x}_t)|} \label{eq:fit} 
+\begin{equation} \label{eq:gp}
+\text{minimize} \hspace{0.5em} {F(n,\mathcal{T})} \hspace{1em} \text{subject to} \hspace{0.5em} {n \in \mathfrak{S}}
 \end{equation}
 
-where $\mathbf{x} \in \mathbb{R}^D$ represents the variables or features, the target output is $y$ and $\hat{y}(i,\mathbf{x})$ is the program's output. As a result of the aggregation of the absolute error vector $e(i) = |y - \hat{y}(i,\mathbf{x})|$ in Eq.~(\ref{eq:fit}), the relationship of $\hat{y}$ to $y$ is represented crudely when choosing models to propagate.
+where $\mathfrak{S}$ is the space of possible programs $n$ and $F$ denotes a minimized fitness function. GP attempts to solve the symbolic regression task by optimizing a population of programs $\mathcal{N} = \{n_i\}_{i=1}^N$, each of which encodes a model of the system and produces an estimate  $\hat{y}_t(n,\mathbf{x}_t): \mathbb{R}^d \rightarrow \mathbb{R}$ when evaluated on case $t$. We refer to $\hat{y}(n)$ as the {\it semantics} of program $n$, omitting $\mathbf{x}$ for brevity. We denote the squared differences between $\hat{y}$ and $y$, (i.e., the errors) as $e_t(n) = (y_t - \hat{y}_t(n))^2$.  We use $\mathbf{e}_t \in \mathbb{R}^N$ to refer to the errors of all programs in the population on training case $t$. 
+
+A typical fitness measure ($F$) is the mean squared error $MSE(n,\mathcal{T}) = \frac{1}{N} \sum_{t \in \mathcal{T}}{e_t(n)}$ which we use to compare our results in \S\ref{s:results}. For the purposes of our discussion, it is irrelevant whether the MSE or the mean absolute error, i.e. $MAE(n) = \frac{1}{N} \sum_{t \in \mathcal{T}}{|y_t - \hat{y}_t(n)|}$, is used, and so we use MAE to simplify a few examples throughout the paper. With lexicase selection and its variants, $e(n)$ is used directly during selection rather than averaging over cases. Nevertheless, in keeping with Eqn.~\ref{eq:gp} in our experiments, the final program returned is that which minimizes $MSE(\mathcal{T})$.
+
+%$\mathcal{T} = \{ (y_t,\mathbf{x}_t)\}_{t = 1}^N$, using e.g. the mean absolute error (MAE), which is quantified for individual program $i \in P$ as:
+%\begin{equation}
+%MSE(\mathcal{T}) = \frac{1}{N} \sum_{t \in \mathcal{T}}{|y_t - \hat{y}_t(\mathbf{x}_t)|} \label{eq:fit} 
+%\end{equation}
+%
+%where $\mathbf{x} \in \mathbb{R}^D$ represents the variables or features, the target output is $y$ and $\hat{y}(i,\mathbf{x})$ is the program's output. As a result of the aggregation of the absolute error vector $e(i) = |y - \hat{y}(i,\mathbf{x})|$ in Eq.~(\ref{eq:fit}), the relationship of $\hat{y}$ to $y$ is represented crudely when choosing models to propagate.
 
 \section{Lexicase Selection}\label{s:lex}
 Lexicase selection is a parent selection technique based on lexicographic ordering of test (i.e. fitness) cases.   
@@ -350,6 +356,7 @@ P_{sel}(n_4)& = 1/4*(1/3*(1/2*(1)+1)+1/3*(1)) &=& 0.20833
 \end{align*}
 
 
+In \S\ref{s:ex} we present a more detailed population example with continuous errors and compare probabilities of selection using lexicase, $\epsilon$ lexicase and tournament selection. 
  
 
 %Here is a detailed look at selection for program $n_1$:
@@ -450,14 +457,14 @@ Comparing Figures~\ref{fig:lex_pareto} and~\ref{fig:ep-lex_pareto} illustrates t
 
 %\begin{minipage}{0.49\textwidth}
 \centering
-  \includegraphics[width = 0.5\textwidth]{figs/lex_pareto.pdf}
+  \includegraphics[width = 0.4\textwidth]{figs/lex_pareto.pdf}
   \caption{An illustration of the performance of lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set. A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:lex_pareto}
 \end{figure}
 %\end{minipage}
 %\begin{minipage}{0.49\textwidth}
 \begin{figure}
 \centering
-  \includegraphics[width = 0.5\textwidth]{figs/ep-lex_pareto.pdf}
+  \includegraphics[width = 0.4\textwidth]{figs/ep-lex_pareto.pdf}
   \caption{An illustration of the performance of semi-dynamic $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set, and the circles with dotted lines are the subset of Pareto set individuals that are also in the $\epsilon$-Pareto set. A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:ep-lex_pareto}
 %\end{minipage}
 \end{figure}
@@ -480,7 +487,7 @@ Interestingly, {\it if the population is unique}, this is the minimum complexity
 \rowcolors{1}{white}{LightCyan}
 \begin{tabularx}{\textwidth}{X|rrrrr|r|R{2em}R{2em}R{2em}R{2em}R{2em}}\toprule
 $\mathcal{N}$ & \multicolumn{5}{c}{Cases} & Mean & \multicolumn{5}{c}{Probability of Selection} \\
-& $t_1$ & $t_2$ & $t_3$ & $t_4$ & $t_5$ &&	tourn	&	lex	&	$\epsilon$ lex static	&	$\epsilon$ lex semi	&	$\epsilon$ lex dyn\\ \midrule
+& $e_1$ & $e_2$ & $e_3$ & $e_4$ & $e_5$ &&	tourn	&	lex	&	$\epsilon$ lex static	&	$\epsilon$ lex semi	&	$\epsilon$ lex dyn\\ \midrule
 $n_1$	&0.0	&	1.1	&	2.2	&	3.0	&	5.0 & 2.26	&	0.111	&	0.200	&	0.000	&	0.067	&	0.033\\ 
 $n_2$	&0.1	&	1.2	&	2.0	&	2.0	&	6.0 & 2.26	&	0.111	&	0.000	&	0.150	&	0.117	&	0.200\\ 
 $n_3$	&0.2	&	1.0	&	2.1	&	1.0	&	7.0 & 2.26	&	0.111	&	0.000	&	0.150	&	0.117	&	0.117\\ 
@@ -502,7 +509,7 @@ Due to its strict definition of elitism, lexicase selection does not account for
 
 \begin{center}
 \begin{tabular}{lrrrrr}
-& $t_1$ & $t_2$ & $t_3$ & $t_4$ & $t_5$ \\
+& $e_1$ & $e_2$ & $e_3$ & $e_4$ & $e_5$ \\
 $n_1$	&0	&	1	&	1	&	1	&	1\\ 
 $n_2$	&0	&	1	&	1	&	0	&	1\\ 
 $n_3$	&0	&	1	&	1	&	0	&	1\\ 
@@ -519,15 +526,25 @@ The selection probabilities for static $\epsilon$ lexicase selection are equival
 
 Semi-dynamic $\epsilon$ lexicase selection allows for all 9 individuals to be selected with varying proportions that are similar to those derived for static $\epsilon$ lexicase selection. Selection probabilities for $n_1$ illustrate the differences in the static and semi-dynamic variants: $n_1$ has a chance for selection in the semi-dynamic case because when $t_1$ is selected as the first case, $n_1$ is within $\epsilon$ of the best case errors {\it among the pool}, i.e. $\{n_1$, $n_2$, $n_3\}$, for any subsequent order of cases. The probability of selection for $n_5$ and $n_6$ follow the same pattern.
 
-Dynamic $\epsilon$-lexicase selection produces the most differentiated selection pressure for this example. Consider individual $n_8$ which is the most likely to be selected for this example. It is selected more often than $n_7$ or $n_9$ due to the adaptations to $\epsilon$ as the selection pool is winnowed. For example, $n_8$ is selected by case sequence $\{t_2,t_1,t_3\}$, for which the selection pool takes the following form after each case: $\{n_7, n_8, n_9\}, \{n_7, n_8\}, \{n_8\}$. Under the other semi-dynamic $\epsilon$ lexicase selection, $n_7$ and $n_8$ would not be removed by these cases due to the fixed nature of $\epsilon$ for those cases. The probabilities of selection for the population in Table~\ref{tbl:ex2} is shown graphically in Figure~\ref{fig:prob}. 
+Dynamic $\epsilon$-lexicase selection produces the most differentiated selection pressure for this example. Consider individual $n_8$ which is the most likely to be selected for this example. It is selected more often than $n_7$ or $n_9$ due to the adaptations to $\epsilon$ as the selection pool is winnowed. For example, $n_8$ is selected by case sequence $\{t_2,t_1,t_3\}$, for which the selection pool takes the following form after each case: $\{n_7, n_8, n_9\}, \{n_7, n_8\}, \{n_8\}$. Under the other semi-dynamic $\epsilon$ lexicase selection, $n_7$ and $n_8$ would not be removed by these cases due to the fixed nature of $\epsilon$ for those cases. 
+
+The expected probabilities of selection for the population in Table~\ref{tbl:ex2} is shown graphically in Figure~\ref{fig:prob} and visually confirms the similarities in probabilities of selection for the $\epsilon$-lexicase variants, especially semi-dynamic and dynamic variants. The expected probability of selection for semi-dynamic $\epsilon$-lexicase is compared to measured probabilities of selection using Algorithm 3.2 in Figure~\ref{fig:prob_converge}. 100 trials of a series of 500 selections are conducted, and the probabilities of selection are reported for each individual after each selection event. The graph illustrates that the probabilities of selection converge on the analytical predictions provided by Eqn.~\ref{eq:prob}, but that the actual probability of selection that is observed is sensitive to the number of selection events. We use population sizes of 1000 in our experiments in \S\ref{s:exp}, which should provide adequate sampling to converge to approximately the expected probabilities of selection. 
 
 \begin{figure}
 \centering
-  \includegraphics[height = 0.4\textheight]{figs/probabilities.pdf}\label{fig:prob}
-  \caption{A graphical representation of the probabilities of selection for the population in Table~\ref{tbl:ex2} according to different selection methods.}\label{fig:boxplot_eps_e}
+  \includegraphics[height = 0.4\textheight]{figs/probabilities.pdf}
+  \caption{A graphical representation of the probabilities of selection for the population in Table~\ref{tbl:ex2} according to different selection methods.}\label{fig:prob}
 \end{figure}
 
- 
+
+\begin{figure}
+\centering
+  \includegraphics[height = 0.6\textheight]{figs/eplex_semi_probability_convergence_500selections.pdf}
+  \caption{Selection probabilities for semi-dynamic $\epsilon$-lexicase selection on the example population in Table~\ref{tbl:ex2}. The black line indiciates the expected probability of selection according to Eqn.~\ref{eq:prob}. The blue lines are measured probabilities of selection after several selection events. 100 trials of 500 selections are conducted.} \label{fig:prob_converge}
+\end{figure}
+
+
+
 \section{Related Work}\label{s:rw}
 
 
