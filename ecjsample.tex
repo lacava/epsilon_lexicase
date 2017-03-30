@@ -1,0 +1,194 @@
+\documentclass[twoside]{article}
+\usepackage{ecj,palatino,epsfig,latexsym,natbib}
+
+
+%% do not add any other page- or text-size instruction here
+
+\parskip=0.00in
+
+\begin{document}
+
+\ecjHeader{x}{x}{xxx-xxx}{201X}{45-character paper description goes here}{Author(s) initials and last name go here}
+\title{\bf Formatting Your Paper for Evolutionary Computation}  
+
+\author{\name{\bf B. A. Author} \hfill \addr{author@abc.university.country}\\ 
+        \addr{Department of Science, My University, 
+        MyTown, Zip, Country}
+\AND
+       \name{\bf D. C. Author2} \hfill \addr{author2@abc.university.country}\\
+        \addr{Department of Science, My University, 
+        MyTown, Zip, Country}
+}
+
+\maketitle
+
+\begin{abstract}
+
+The abstract goes here.  It should be about 200 words and give the
+reader a summary of the main contributions of the paper.   
+Remember that readers may decide to read or not to read your
+paper based on what is in the abstract.  The abstract never
+contains references.  
+
+\end{abstract}
+
+\begin{keywords}
+
+Genetic algorithms, 
+evolution strategies,
+genetic programming,
+evolutionary programming,
+strong causality,
+Walsh analysis.
+
+\end{keywords}
+
+\section{General Instructions}
+
+This document%
+\footnote{Originally written by Darrell Whitley, and only later
+  modified by Marc Schoenauer, especially regarding the bibliography style,
+  latest update by Hans-Georg Beyer (\today).} 
+is a template which you can use to format your paper in 
+preparation for publishing in the journal {\em Evolutionary Computation} 
+(ECJ) and for submitting your paper to the journal. Our style file 
+``ecj.sty'' is compatible with \LaTeX{} version 2e. Please note, also the 
+first submission must be typeset using ECJ's \LaTeX{} style. {\em Documents 
+typeset by MS Word or other office programs are not accepted.}   
+
+Please make sure your paper is as complete and accurate as possible. You 
+should typeset your paper as you would like to see it 
+in its finally printed journal version (no double spacing; figures, tables 
+should be embedded in the text at the most desirable locations). 
+
+Please provide author(s) first initial and last name(s) for the even-page 
+running headline. Also provide a brief paper title (45 characters/spaces or 
+less) for the odd-page running headline.  See the ecjHeader section at the 
+top of this document for placement of these items.
+
+The rest of the document provides a few examples of references and 
+citations, how to set up figures, discusses common problems, and provides some
+general advice on writing your paper.
+
+\begin{enumerate} 
+    
+\item
+Give full names for authors.  (T. Bones should be Tom Bones or Thomas, 
+unless your first name is a military secret and everyone calls you ``T''.)  
+
+\item
+Be sure to provide 5 to 10 keywords for your paper.  See ``keywords'' 
+section above.
+
+\item
+Use the {\em Evolutionary Computation} format for references. In text 
+citations should use the authors names (Smith, 1997) or ``Smith (1997) 
+states ...''   The references at the back of the paper should also follow 
+the {\em Evolutionary Computation} format. Using a bitex file, with
+{\bf natbib.sty} and {\bf  apalike.bst}  is highly recommended. You
+should then use 
+\begin{itemize}
+\item {\tt $\backslash$cite\{Smith\} states that \ldots} to obtain ``\cite{Smith} states that \ldots''
+\item {\tt as stated in  $\backslash$citep\{Smith\}, \ldots} to obtain ``as stated in \citep{Smith} \ldots''
+\end{itemize}
+
+If you don't use natbib, be sure to follow the rules:
+
+\begin{itemize}
+\item 1 author: (Antonisse, 1989)
+\item 2 authors: (Juliany and Vose, 1994)
+\item multiple authors: (Reeves et al., 1990)
+\item multiple citations: (Antonisse, 1989; Juliany and Vose, 1994) 
+\end{itemize}
+
+
+\item
+If you use a bibtex file, please submit your bibtex file. In any case,
+please completely 
+spell out journal and institution titles.  Abbreviations may not be 
+understood by all readers. Be sure to provide beginning {\em and} ending 
+page numbers. Include editor(s) initials and last names(s), volume numbers, 
+page ranges, publisher name and location.
+
+See the Reference section of this paper for specific examples.
+
+\end{enumerate}
+
+\section{About Figures}
+
+\begin{figure}[t]
+\begin{center}
+\centerline{
+% \includegraphics[width=0.8\textwidth]{yourfigure.eps}
+%  UNCOMMENT the above line and add yourfigure.eps
+%  AND delete or comment-out the framebox
+\framebox(375,50)
+}
+\end{center}
+\caption{This is a caption below a framebox where a figure might appear.  
+         Use epsfig in the {\tt $\backslash$usepackage\{epsfig,ecj...\}} 
+         command to help to insure that we can process your figure.}
+\label{graph1}
+\end{figure}
+
+Figures potentially cause the most serious problems when processing \LaTeX{}
+files. Image files should be in EPS (encapsulated postscript) or 
+PNG format (both formats produce better outcome when enlarged). However, JPEG 
+can be used as well. Make sure that no unusual files are required for 
+processing your figures.
+The use of the ``epsfig'' or the related ``graphicx'' \LaTeX{} package is 
+strongly recommended as well as the
+format found in ecjsample.tex used for generating Figure 1 above.
+The use of the ``includegraphics'' command is commented out in the \LaTeX{} 
+file;
+but you can remove the ``comment'' symbols and use the
+commands shown in ecjsample.tex.\\
+
+Make sure you provide an in-text reference to each of your figures.  An 
+example is Figure 1.\\
+
+Make sure figures are clear and fit within the margins specified in the 
+style file.  Small figures with hard to read labels or hard to see lines are 
+a common problem.  Also make sure that labels and terms used in figures are
+defined in either the caption or the text. (It is best if they
+are defined in the caption.)
+
+\section{Common Problems and Advice}
+
+Avoid the use of too many acronyms. You may know the meaning and 
+significance of BARF (e.g., Beer, Aspirin, Recreation, and Food), but this, 
+in effect, amounts to the invention of a personal language that makes 
+reading your paper more difficult.  Define each acronym on its first 
+occurrence it the text; thereafter, you may use the acronym alone.\\
+
+Avoid run-on sentences.  Typically these are very hard to parse. This is 
+also one of the most common problems. While you are at it, use a spelling 
+tool such as ispell.\\
+
+Avoid paraphrases - ``i.e.'', ``e.g.'', ``in other words...'', or 
+parenthetical information is often unnecessarily redundant.\\
+
+Minimize the use of prepositions and adverbs to begin a sentence (``On the other hand...'', ``Conversely...'', ``Obviously...'').  Vary your sentence 
+structure.\\
+
+Avoid using excessive supporting information/documentation.  Select only the 
+material that will strengthen your paper and is relevant and necessary.\\
+
+For paper submission and the reviewing process, only the manuscript in 
+PDF format is needed. After final acceptance, we will need all your files 
+in electronic form.  This package should include at least the following 
+files:  .tex, .bib, .bbl, .eps, .pdf, and any 
+special style files you have used to create your paper.  We also need to be 
+able to \LaTeX{} and generate camera-ready PDF of your paper. Following 
+the examples given in ecjsample.tex will help ensure your \LaTeX{} file can be 
+processed without error.\\ 
+
+Thank you for submitting your work to {\em Evolutionary Computation}.
+
+\small
+
+\bibliographystyle{apalike}
+\bibliography{ecjsample}
+
+
+\end{document}
