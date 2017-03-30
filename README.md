@@ -3,6 +3,7 @@ todo:
  - [x] introduction
  - [x] related work
  - [x] plot probabilities of selection with lexicase and tournament selection versus number of selections
- - [ ] experimental runs on all problems
- - [ ] discussion
- - [ ] conclusions 
+ - [x] experimental runs on all problems
+ - [x] discussion
+ - [x] conclusions
+ - [] detailed read 
