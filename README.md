@@ -6,4 +6,4 @@ todo:
  - [x] experimental runs on all problems
  - [x] discussion
  - [x] conclusions
- - [] detailed read 
+ - [ ] detailed read 
