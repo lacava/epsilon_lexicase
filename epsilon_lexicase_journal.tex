@@ -222,7 +222,7 @@ These observations led to the development of $\epsilon$-lexicase selection~\cite
 \epsilon_t = \text{median}(\mathbf{e}_t - \text{median}(\mathbf{e}_t)) = MAD(\mathbf{e}_t)
 \end{equation}
 
-Defining $\epsilon$ according to Eqn.~\ref{eq:ep} allows the threshold to adapt to changing performance of the population on each training case. As performance across the population improves for a training case, $\epsilon$ shrinks, thereby modulating the selectivity of a case based on how difficult it is. We choose MAD in lieu of the standard deviation statistic for calculating $\epsilon$ because it is more robust to outliers~\cite{pham-gia_mean_2001}. 
+Defining $\epsilon$ according to Eqn.~\ref{eq:ep} allows the threshold to adapt to changing performance of the population on each training case. As performance across the population improves for a training case, $\epsilon$ shrinks, thereby modulating the selectivity of a case based on how difficult it is. We choose MAD in lieu of the standard deviation statistic for calculating $\epsilon$ because it is more robust to outliers~\citep{pham-gia_mean_2001}. 
 
 We study three implementations of $\epsilon$-lexicase selection in this paper: static, which is the version originally proposed~\citep{la_cava_automatic_2016}; semi-dynamic, in which the elite error is defined relative to the pool; and dynamic, in which both the elite error and $\epsilon$ are defined relative to the current selection pool. 
 
@@ -267,7 +267,7 @@ Semi-dynamic $\epsilon$-lexicase selection differs from static $\epsilon$-lexica
 }
 \medskip
 
-The final variant of $\epsilon$-lexicase selection is Dynamic $\epsilon$-lexicase selection, in which both the error and $\epsilon$ are defined among the current selection pool. In this case, $\epsilon$ is defined as 
+The final variant of $\epsilon$-lexicase selection is dynamic $\epsilon$-lexicase selection, in which both the error and $\epsilon$ are defined among the current selection pool. In this case, $\epsilon$ is defined as 
 
 \begin{equation}\label{eq:epd}
 \epsilon_t(\mathcal{S}) = \text{median}(\mathbf{e}_t(\mathcal{S}) - \text{median}(\mathbf{e}_t(\mathcal{S}))) = MAD(\mathbf{e}_t(\mathcal{S}))
@@ -348,7 +348,7 @@ Both $N$ and $T$ affect how well the expected probabilities of selection derived
 
 \[ 1 - \prod_{i=1}^N{\frac{(T-1)!}{T!(T-1-d_i)!}} \]
 
-Here, the case depth $d_i$ is the number of cases used to select a parent for selection event $i$. Because the case depth varies from selection to selection based on population semantics, this case probability is difficult to analyze. However, it can be simplified to consider the scenario in which a case appears {\it first} in selection. In fact, Eqn.~\ref{eq:prob} implies that a case in $\mathcal{K}_n$ influences the probability of selection of $n$ most heavily when it occurs first in a selection event. There are two reasons: first, the case has the potential to filter $N-1$ individuals, which is the strongest selection pressure it can apply. Second, a case's effect size is highest when selected first because it is not conditioned on the probability of selection of any other cases. Each subsequent case selection has a reduced effect on $P_{lex}$ of $\prod_{i=1}^d{\frac{1}{T-i}}$, where $d$ is the recursion depth. These observations also highlight the importance of the relative sizes of $N$ and $T$ because they affect the probability that a case will be observed at the top of a selection event in a given generation, which affects how closely Eqn.~\ref{eq:prob} is approximated. The probability that a case will come first in a generation {\it at least once} is 
+Here, the case depth $d_i$ is the number of cases used to select a parent for selection event $i$. Because the case depth varies from selection to selection based on population semantics, this case probability is difficult to analyze. However, it can be simplified to consider the scenario in which a case appears {\it first} in selection. In fact, Eqn.~\ref{eq:prob} implies that a case in $\mathcal{K}_n$ influences the probability of selection of $n$ most heavily when it occurs first in a selection event. There are two reasons: first, the case has the potential to filter $N-1$ individuals, which is the strongest selection pressure it can apply. Second, a case's effect size is highest when selected first because it is not conditioned on the probability of selection of any other cases. Each subsequent case selection has a reduced effect on $P_{lex}$ of $\prod_{i=1}^d{\frac{1}{T-i}}$, where $d$ is the recursion depth. These observations also highlight the importance of the relative sizes of $N$ and $T$ because they affect the probability that a case will be observed at the top of a selection event in a given generation, which affects how closely Eqn.~\ref{eq:prob} is approximated. The probability that a case will come first in a selection event {\it at least once} in a generation is 
 \begin{equation}\label{eq:prob_case}
 Pr = 1 - \left(\frac{(T-1)}{T}\right)^N
 \end{equation}
@@ -408,7 +408,7 @@ $n_1$ {\it dominates} $n_2$, i.e., ${n_1} \prec {n_2}$, if $e_j(n_1) \leq e_j(n_
 \end{defn}
 
 \begin{defn}\label{def:pset}
-The {\it Pareto set} of $\mathcal{N}$ is the subset of $\mathcal{N}$ that is non-dominated with respect to $\mathcal{N}$; i.e., $n \in \mathcal{N}$ is in the Pareto set if $n \nprec m \; \forall \; m \in \mathcal{N}$. 
+The {\it Pareto set} of $\mathcal{N}$ is the subset of $\mathcal{N}$ that is non-dominated with respect to $\mathcal{N}$; i.e., $n \in \mathcal{N}$ is in the Pareto set if $m \nprec n \; \forall \; m \in \mathcal{N}$. 
 \end{defn}
 
 \begin{defn}\label{def:boundary}
@@ -423,8 +423,8 @@ If individuals from a population $\mathcal{N}$ are selected by lexicase selectio
 
 \noindent \textit{Proof:} First, we prove (by supposing a contradiction) that individuals selected by lexicase are in the Pareto set. Second, we prove these individuals to be Pareto set boundaries. 
 
-First: Let $n_1, n_2 \in \mathcal{N}$ be individuals in a population selected by lexicase selection. Suppose $n_1 \prec n_2$. Then $e_j(n_1) \leq e_j(n_2) \;
-\forall j  \in \{1,\dots,T\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) < e_j(n_2)$. Therefore $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ for which $n_2$ is removed from selection due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition is false. Therefore $n_1$ and $n_2$ must be in the Pareto set of $\mathcal{N}$. 
+First:  Let $n_1 in \mathcal{N}$ be any individual and let $n_2$ $\in \mathcal{N}$ be an individual selected from $\mathcal{N}$ by lexicase selection. Suppose $n_1 \prec n_2$. Then $e_j(n_1) \leq e_j(n_2) \;
+\forall j  \in \{1,\dots,T\}$ and $\exists j \in \{1,\dots,T\}$ for which $e_j(n_1) < e_j(n_2)$. Therefore $n_1$ remains in the selection pool for every case that $n_2$ does, yet $\exists t \in \mathcal{T}$ for which $n_2$ is removed from every selection event due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition is false. Therefore $n_1$ and $n_2$ must be in the Pareto set of $\mathcal{N}$. 
 
 Second: let $n \in \mathcal{N}$ be an individual selected from $\mathcal{N}$ by lexicase selection. Then by definition of Algorithm 2.1, $\exists j \in \{1,\dots,T\}$ for which $e_j(n) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. Therefore, since $n$ is in the Pareto set of $\mathcal{N}$, according to Definition~\ref{def:boundary}, $n$ is a Pareto set boundary of $\mathcal{N}$.  
 \bigskip
@@ -446,7 +446,7 @@ Definition~\ref{def:edom} is more strict, requiring $e_j(n_1) + \epsilon_j < e_j
 %As a result, the non-$\epsilon$-dominated set, defined as the $\epsilon$-Pareto set below, is expected to be as large or larger than the $\epsilon$-approximate Pareto set used in~\citep{laumanns_archiving_2002}. 
  
 \begin{defn}\label{def:epset}
-The {\it $\epsilon$-Pareto set} of $\mathcal{N}$ is the subset of $\mathcal{N}$ that is non-$\epsilon$-dominated with respect to $\mathcal{N}$; i.e., $n \in \mathcal{N}$ is in the $\epsilon$-Pareto set if $n \nprec_{\epsilon} m \; \forall \; m \in \mathcal{N}$. 
+The {\it $\epsilon$-Pareto set} of $\mathcal{N}$ is the subset of $\mathcal{N}$ that is non-$\epsilon$-dominated with respect to $\mathcal{N}$; i.e., $n \in \mathcal{N}$ is in the $\epsilon$-Pareto set if $m \nprec_{\epsilon} n \; \forall \; m \in \mathcal{N}$. 
 \end{defn}
 
 \begin{defn}\label{def:eboundary}
@@ -459,34 +459,36 @@ If $\epsilon$ is defined according to Eqn.~\ref{eq:ep}, and if individuals are s
 
 
 \begin{proof}
-First: Let $n_1$ and $n_2$ be individuals selected from $\mathcal{N}$ by static or semi-dynamic $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Then $n_1$ is selected for every case that $n_2$ is selected, and $\exists t \in \mathcal{T}$ in every selection event for which $n_2$ is removed from selection due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition $n_1 \prec_{\epsilon} n_2$ is false.  Therefore $n_1$ and $n_2$ must be in the $\epsilon$-Pareto set of $\mathcal{N}$ to be selected. 
+First: Let $n_1 in \mathcal{N}$ be any individual and let $n_2$ $\in \mathcal{N}$ be an individual selected from $\mathcal{N}$ by static or semi-dynamic $\epsilon$-lexicase selection. Suppose $n_1 \prec_{\epsilon} n_2$. Therefore $n_1$ remains in the selection pool for every case that $n_2$ does, yet $\exists t \in \mathcal{T}$ for which $n_2$ is removed from every selection event due to $n_1$. Hence, $n_2$ cannot be selected by lexicase selection and the supposition $n_1 \prec_{\epsilon} n_2$ is false.  Therefore $n_1$ and $n_2$ must be in the $\epsilon$-Pareto set of $\mathcal{N}$ to be selected. 
 
-Second: let $n$ be an individual selected from population $\mathcal{N}$ by static or semi-dynamic $\epsilon$-lexicase selection. Then by definition of Algorithm 3.1 or 3.2, $\exists j \in \{1,\dots,T\}$ for which $e_j(n) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. Since $n$ is in the $\epsilon$-Pareto set of $\mathcal{N}$ and according to Definition 3, $n$ must be a $\epsilon$-Pareto set boundary of $\mathcal{N}$.  
+Second: let $n$ be an individual selected from population $\mathcal{N}$ by static or semi-dynamic $\epsilon$-lexicase selection. Then by definition of Algorithm 3.1 or 3.2, $\exists j \in \{1,\dots,T\}$ for which $e_j(n) \leq e_j(m) \; \forall \; m \in \mathcal{N}$. Since $n$ is in the $\epsilon$-Pareto set of $\mathcal{N}$ and according to Definition~\ref{def:eboundary}, $n$ must be a $\epsilon$-Pareto set boundary of $\mathcal{N}$.  
 \end{proof}
 \bigskip
 
-The selection of Pareto set boundaries by lexicase selection is illustrated in Figure~\ref{fig:lex_pareto} for a scenario with two fitness cases. Each point in the plot represents an individual, and the squares are the Pareto set. Under a lexicase selection event with case sequence $\{t_1, t_2\}$, individuals would first be filtered to the two left-most individuals that are elite on $e_1$, and then to the individual among those two that is best on $e_2$, i.e. the selected square individual. Note that the selected individual is a Pareto set boundary. The individual on the other end of the Pareto set shown as a black square would be selected using the opposite order of cases.  
+The selection of Pareto set boundaries by lexicase selection is illustrated in left plot of Figure~\ref{fig:lex_pareto} for a scenario with two fitness cases. Each point in the plot represents an individual, and the squares are the Pareto set. Under a lexicase selection event with case sequence $\{t_1, t_2\}$, individuals would first be filtered to the two left-most individuals that are elite on $e_1$, and then to the individual among those two that is best on $e_2$, i.e. the selected square individual. Note that the selected individual is a Pareto set boundary. The individual on the other end of the Pareto set shown as a black square would be selected using the opposite order of cases.  
 
-Consider the analogous case for semi-dynamic $\epsilon$-lexicase selection illustrated in Figure~\ref{fig:ep-lex_pareto}. In this case the Pareto set is indicated again by squares. Under a semi-dynamic $\epsilon$-lexicase selection event with case order $\{t_1, t_2\}$, the population would first be filtered to the four left-most individuals that are within $\epsilon_1$ of the elite error on case $t_1$, and then the indicated square would be selected by being the only individual within $\epsilon_2$ of the elite error on $t_2$ among the current pool. Note that that although the selected individual is an $\epsilon$-Pareto set boundary by Definition~\ref{def:eboundary}, it is {\it not} a boundary of the Pareto set. Theorem~\ref{thm:eplex} only guarantees that the selected program is within $\epsilon$ of the best error for at least one case, which in this scenario is $t_1$. 
+Consider the analogous case for semi-dynamic $\epsilon$-lexicase selection illustrated in the right plot of Figure~\ref{fig:lex_pareto}. In this case the Pareto set is indicated by squares that also belong to the $\epsilon$-Pareto set, indicated by circles with dotted lines. Under a semi-dynamic $\epsilon$-lexicase selection event with case order $\{t_1, t_2\}$, the population would first be filtered to the four left-most individuals that are within $\epsilon_1$ of the elite error on case $t_1$, and then the indicated square would be selected by being the only individual within $\epsilon_2$ of the elite error on $t_2$ among the current pool. Note that that although the selected individual is an $\epsilon$-Pareto set boundary by Definition~\ref{def:eboundary}, it is {\it not} a boundary of the Pareto set. Theorem~\ref{thm:eplex} only guarantees that the selected program is within $\epsilon$ of the best error for at least one case, which in this scenario is $t_1$. 
 
-Comparing Figures~\ref{fig:lex_pareto} and~\ref{fig:ep-lex_pareto} illustrates the effect of introducing $\epsilon$ to the filter conditions in lexicase: it reduces the selectivity of each case, ultimately resulting in the selection of individuals that are not as extremely positioned in objective space. Regarding the position of solutions in this space, it's worth noting the significance of boundary solutions (and near boundary solutions) in the context of multi-objective optimization. Boundary solutions are known to contribute significantly to hypervolume measures~\citep{deb_evaluating_2005}, where the hypervolume is a measure of how well-covered the objective space is by the current set of solutions. The boundary solutions have an infinite score according to NSGA-II's crowding measure~\citep{schoenauer_fast_2000}, with higher being better, meaning they are the first non-dominated solutions to be preserved by selection when the population size is reduced. Nonetheless, multi-objective literature appears divided on how these boundary solutions drive search~\citep{wagner_pareto-_2007}, when the goal of the algorithm is to approximate the optimal Pareto front. The goal of GP, in contrast, is to preserve points in the search space that, when combined and varied, yield a single best solution. So while the descriptions above lend insight to the function of lexicase and $\epsilon$-lexicase selection, the different goals of search and the high dimensionality of training cases must be remembered when comparing to multi-objective optimization. 
+Comparing the left and right plots of Figure~\ref{fig:lex_pareto} illustrates the effect of introducing $\epsilon$ to the filter conditions in lexicase: it reduces the selectivity of each case, ultimately resulting in the selection of individuals that are not as extremely positioned in objective space. Regarding the position of solutions in this space, it's worth noting the significance of boundary solutions (and near boundary solutions) in the context of multi-objective optimization. Boundary solutions are known to contribute significantly to hypervolume measures~\citep{deb_evaluating_2005}, where the hypervolume is a measure of how well-covered the objective space is by the current set of solutions. The boundary solutions have an infinite score according to NSGA-II's crowding measure~\citep{schoenauer_fast_2000}, with higher being better, meaning they are the first non-dominated solutions to be preserved by selection when the population size is reduced. Nonetheless, multi-objective literature appears divided on how these boundary solutions drive search when the goal of the algorithm is to approximate the optimal Pareto front~\citep{wagner_pareto-_2007}. The goal of GP, in contrast, is to preserve points in the search space that, when combined and varied, yield a single best solution. So while the descriptions above lend insight to the function of lexicase and $\epsilon$-lexicase selection, the different goals of search and the high dimensionality of training cases must be remembered when comparing to multi-objective optimization. 
 
-As a last note, when considered as objectives, the worst-case complexity of lexicase selection matches that of NSGA-II: $O(TN^2)$. Interestingly, the worst case complexity of the crowding distance assignment portion of NSGA-II, $O(TN\log(N))$, occurs when all individuals are non-dominated, which is expected in high dimensions~\citep{farina_optimal_2002, wagner_pareto-_2007}. Under lexicase selection, a non-dominated population {\it that is semantically unique} yields the best-case complexity of $O(N^2)$. 
+As a last note, when considered as objectives, the worst-case complexity of lexicase selection matches that of NSGA-II: $O(TN^2)$. Interestingly, the worst case complexity of the crowding distance assignment portion of NSGA-II, $O(TN\log(N))$, occurs when all individuals are non-dominated, which is expected in high dimensions~\citep{farina_optimal_2002, wagner_pareto-_2007}. Under lexicase selection, a non-dominated population {\it that is semantically unique} yields the minimum complexity scenario of $O(N^2)$. 
 
-\begin{figure}
+\begin{figure}[htb]
 
-%\begin{minipage}{0.49\textwidth}
+\begin{minipage}{0.49\textwidth}
 \centering
-  \includegraphics[width = 0.4\textwidth]{figs/lex_pareto.pdf}
-  \caption{An illustration of the performance of lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set. A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:lex_pareto}
-\end{figure}
-%\end{minipage}
-%\begin{minipage}{0.49\textwidth}
-\begin{figure}
+  \includegraphics[width = \textwidth]{figs/lex_pareto.pdf}
+  %\caption{An illustration of the performance of lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set. A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:lex_pareto}
+%\end{figure}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.49\textwidth}
+%\begin{figure}
 \centering
-  \includegraphics[width = 0.4\textwidth]{figs/ep-lex_pareto.pdf}
-  \caption{An illustration of the performance of semi-dynamic $\epsilon$-lexicase selection in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set, and the circles with dotted lines are the subset of Pareto set individuals that are also in the $\epsilon$-Pareto set. A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:ep-lex_pareto}
-%\end{minipage}
+  \includegraphics[width = \textwidth]{figs/ep-lex_pareto.pdf}
+  
+\end{minipage}
+\caption{An illustration of the performance of lexicase selection (left) semi-dynamic $\epsilon$-lexicase selection (right) in a scenario involving two cases. Each point represents and individual in the population. The squares are individuals in the Pareto set, and the circles with dotted lines are individuals in the $\epsilon$-Pareto set (the $\epsilon$-Pareto set also includes the squares). A selection event for case sequence $\{t_1,t_2\}$ is shown by the gray rectangles. The black points are individuals that could be selected by any case ordering.}\label{fig:lex_pareto}
 \end{figure}
 
 %\paragraph{Relation to Evolutionary Multi-objective Optimization}
