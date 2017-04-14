@@ -175,9 +175,9 @@ Lexicase selection is a parent selection technique based on lexicographic orderi
 \begin{tabularx}{\textwidth}{lX}
 \multicolumn{2}{c}{{\normalsize Algorithm 2.1: Lexicase Selection}} \\ 
 \texttt{GetParent}($\mathcal{N,T}$) 	:						&	\\
-\hspace{1em}	$T' \leftarrow \mathcal{T}$	&	training cases\\
+\hspace{1em}	$\mathcal{T}' \leftarrow \mathcal{T}$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
-\hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
+\hspace{1em}	while $|\mathcal{T}'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
 \hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$ 	&	\hspace{1em}consider a random case\\
 \hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	\hspace{1em}determine elite fitness\\
 \hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) = \texttt{elite}				&	\hspace{1em}reduce selection pool to elites\\
@@ -237,11 +237,11 @@ Static $\epsilon$-lexicase selection can be viewed as a preprocessing step added
 \begin{tabularx}{\textwidth}{lX}
 \multicolumn{2}{c}{\normalsize Algorithm 3.1: {Static $\epsilon$-Lexicase Selection}} \\ 
 \texttt{GetParent}($\mathcal{N,T}$) 	:						&	\\
-\hspace{1em}	$T' \leftarrow \mathcal{T}$	&	training cases\\
+\hspace{1em}	$\mathcal{T}' \leftarrow \mathcal{T}$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
 \hspace{1em}	$\epsilon \leftarrow MAD$($\mathbf{e}_t$) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case across population\\
 \hspace{1em}	fitness$(n) \leftarrow 1- \mathbb{I}(e_t(n) \leq e^*_t(n) + \epsilon_t)$ for $t \in \mathcal{T}$ and $n \in \mathcal{N}$	&	convert fitness using within-$\epsilon$ pass condition\\
-\hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
+\hspace{1em}	while $|\mathcal{T}'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
 \hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$  	&	\hspace{1em}consider a random case\\
 \hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	\hspace{1em}determine elite fitness\\
 \hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}	&	\hspace{1em}reduce selection pool to elites\\
@@ -258,10 +258,10 @@ Semi-dynamic $\epsilon$-lexicase selection differs from static $\epsilon$-lexica
 \begin{tabularx}{\textwidth}{lX}
 \multicolumn{2}{c}{\normalsize Algorithm 3.2: Semi-dynamic $\epsilon$-Lexicase Selection} \\ 
 \texttt{GetParent}($\mathcal{N,T}$) 	:						&	\\
-\hspace{1em}	$T' \leftarrow \mathcal{T}$	&	training cases\\
+\hspace{1em}	$\mathcal{T}' \leftarrow \mathcal{T}$	&	training cases\\
 \hspace{1em}	$S \leftarrow \mathcal{N}$	&	initial selection pool is the population\\
 \hspace{1em}	$\epsilon \leftarrow MAD$($\mathbf{e}_t$) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case across population\\
-\hspace{1em}	while $|T'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
+\hspace{1em}	while $|\mathcal{T}'| >0$ and $|\mathcal{S}|>1$:						&	main loop\\
 \hspace{1em}\hspace{1em}	\texttt{case} $\leftarrow$ random choice from $\mathcal{T'}$ &	\hspace{1em}consider a random case\\
 \hspace{1em}\hspace{1em}	\texttt{elite} $\leftarrow$ best fitness in $\mathcal{S}$ on \texttt{case} 	&	\hspace{1em}determine elite fitness\\
 \hspace{1em}\hspace{1em}	$\mathcal{S} \leftarrow n \in \mathcal{S}$ if fitness($n$) $\leq$ \texttt{elite}$+\epsilon_{\texttt{case}}$	&	\hspace{1em}reduce selection pool to elites\\
