@@ -310,30 +310,39 @@ Recent work has empirically studied and extended lexicase selection.~\cite{helmu
 \section{Expected Probabilities of Selection}\label{s:prob}
 The literature on lexicase selection has yet to analytically address the question: what is the probability of an individual being selected by lexicase selection, given its performance in a population on a set of training cases?  Put into words, the probability of $n$ being selected is the probability that a case $n$ passes is selected and: 1) no more cases remain and $n$ is selected among the set of individuals that pass the selected case; or 2) $n$ is the only individual that passes the case; or 3) $n$ is selected via the selection of another case that $n$ passes (repeating the process). 
 
-Formally, let $P_{lex}(n | \mathcal{N}, \mathcal{T})$ be the probability of $n \in \mathcal{N}$ being selected. Let $\mathcal{K}_n(\mathcal{T},\mathcal{N}) = \{k_i\}_{i=1}^K \subseteq \mathcal{T}$ be the training cases from $\mathcal{T}$ for which individual $n$ is elite among $\mathcal{N}$. We will use $\mathcal{K}_n$ for brevity. Then the probability of selection under lexicase can be represented as a piece-wise recursive function: 
+Formally, let $P_{lex}(n | \mathcal{N}, \mathcal{T})$ be the probability of $n \in \mathcal{N}$ being selected by lexicase selection. Let $\mathcal{K}_n(\mathcal{T},\mathcal{N}) = \{k_i\}_{i=1}^K \subseteq \mathcal{T}$ be the training cases from $\mathcal{T}$ for which individual $n$ is elite among $\mathcal{N}$. We will use $\mathcal{K}_n$ for brevity. Then the probability of selection under lexicase can be represented as a piece-wise recursive function: 
 
 
-{\scriptsize
-\begin{align}\label{eq:prob}
-P_{lex}(n | \mathcal{N}, \mathcal{T}) &= \\
- &\left\{\nonumber 
-     \begin{array}{lcr}
-       1 & : & |\mathcal{T}| >0, |\mathcal{N}| = 1; \\
-       1/|\mathcal{N}| & : &|\mathcal{T}| = 0; \\ 
-       \frac{1}{|\mathcal{T}|}\sum_{k_s \in K_n}{P_{lex} \left( n | \mathcal{N}(m|k_s \in K_m), \mathcal{T}(t|t \neq k_s) \right)} & : & \text{otherwise}
-     \end{array}
-   \right. 
-\end{align}
-}
+%{\scriptsize
+%\begin{align}\label{eq:prob}
+%P_{lex}(n | \mathcal{N}, \mathcal{T}) &= \\
+% &\left\{\nonumber 
+%     \begin{array}{lcr}
+%       1 & : & |\mathcal{T}| >0, |\mathcal{N}| = 1; \\
+%       1/|\mathcal{N}| & : &|\mathcal{T}| = 0; \\ 
+%       \frac{1}{|\mathcal{T}|}\sum_{k_s \in K_n}{P_{lex} \left( n | \mathcal{N}(m|k_s \in K_m), \mathcal{T}(t|t \neq k_s) \right)} & : & \text{otherwise}
+%     \end{array}
+%   \right. 
+%\end{align}
+%}
 
-The first two elements of $P_{lex}$ follow from the lexicase algorithm: if there is one individual in $\mathcal{N}$, then it is selected; otherwise if there no more cases in in $\mathcal{T}$, then $n$ has a probability of selection split among the individuals in $\mathcal{N}$, i.e.,  $1/|\mathcal{N}|$. If neither of these conditions are met, the remaining probability of selection is $1/|\mathcal{T}|$ times the summation of $P_{lex}$ over $n$'s elite cases. Each case in $K_n$ has a probability of $1/|\mathcal{T}|$ of being selected. For each potential selection $k_s$, the probability of $n$ being selected as a result of this case being chosen is dependent on the number of individuals that are also elite on these cases, represented by $\mathcal{N}(m|k_s \in K_m(\mathcal{T}))$, and the cases that are left to be traversed, represented by $\mathcal{T}(t|t \neq k_s)$. 
+\begin{equation}\label{eq:prob}
+P_{lex}(n | \mathcal{N}, \mathcal{T}) =
+\begin{cases}
+1 & \text{if } |\mathcal{N}| = 1;\\
+1/|\mathcal{N}| & \text{if } |\mathcal{T}| = 0;\\
+\frac{1}{|\mathcal{T}|}\sum_{k_s \in K_n}{P_{lex} \left( n | \mathcal{N}(m|k_s \in K_m), \mathcal{T} \setminus \{k_s\} \right)} & \text{otherwise}
+\end{cases}
+\end{equation}
+
+The first two elements of $P_{lex}$ follow from the lexicase algorithm: if there is one individual in $\mathcal{N}$, then it is selected; otherwise if there no more cases in in $\mathcal{T}$, then $n$ has a probability of selection split among the individuals in $\mathcal{N}$, i.e.,  $1/|\mathcal{N}|$. If neither of these conditions are met, the remaining probability of selection is $1/|\mathcal{T}|$ times the summation of $P_{lex}$ over $n$'s elite cases. Each case in $K_n$ has a probability of $1/|\mathcal{T}|$ of being selected. For each potential selection $k_s$, the probability of $n$ being selected as a result of this case being chosen is dependent on the number of individuals that are also elite on this case, represented by $\mathcal{N}(m|k_s \in K_m)$, and the cases that are left to be traversed, represented by $\mathcal{T} \setminus \{k_s\}$. 
 
 Eqn.~\ref{eq:prob} also describes the probability of selection under $\epsilon$-lexicase selection, with the condition that {\it elitism} on a case is defined as being within $\epsilon$ of the best error on that case, where the best error is defined among the whole population (static) or among the current selection pool (semi-dynamic and dynamic) and $\epsilon$ is defined according to Eqn.~\ref{eq:ep} or Eqn.~\ref{eq:epd}. 
 
 %\paragraph{Intuitions according to edge cases}
-According to Eqn.~\ref{eq:prob}, when fitness values across the population are unique, selection probability is $P_{lex}(n) = \frac{1}{|\mathcal{T}|} \sum_{k_s \in \mathcal{K}_n} 1 = \frac{|\mathcal{K}_n|}{|\mathcal{T}|} \; \forall \; n$, since filtering the population according to any case for which $n$ is elite will result in $n$ being selected. Conversely, if the population semantics are completely homogeneous such that every individual is elite on every case, the selection will be uniformly random, giving the selection probability $P_{lex}(n) = \frac{1}{N} \; \forall \; n$. This property of uniform random selection for identical performance holds true for individual cases as well: a case $t$ will have no impact on the probability of selection of $n$ if $t \notin K_n \; \forall \; n,t \; \in \mathcal{N}, \mathcal{T}$ or $t \in K_n \; \forall \; n,t \; \in \mathcal{N}, \mathcal{T}$. This intuition is also gleaned from Algorithm 2.1: any case that every individual passes provides no selective pressure because the selection pool does not change when it is selected.
+According to Eqn.~\ref{eq:prob}, when fitness values across the population are unique, selection probability is $P_{lex}(n) = \frac{1}{|\mathcal{T}|} \sum_{k_s \in \mathcal{K}_n} 1 = \frac{|\mathcal{K}_n|}{|\mathcal{T}|}$, since filtering the population according to any case for which $n$ is elite will result in $n$ being selected. Conversely, if the population semantics are completely homogeneous such that every individual is elite on every case, the selection will be uniformly random, giving the selection probability $P_{lex}(n) = \frac{1}{N}$. This property of uniform random selection for identical performance holds true for individual cases as well: a case $t$ will have no impact on the probability of selection of $n$ if $t \notin K_n \; \forall \; n,t \; \in \mathcal{N}, \mathcal{T}$ or $t \in K_n \; \forall \; n,t \; \in \mathcal{N}, \mathcal{T}$. This intuition is also gleaned from Algorithm 2.1: any case that every individual passes provides no selective pressure because the selection pool does not change when it is selected.
 
-Although it is tempting to pair Eqn.~\ref{eq:prob} with roulette wheel selection as an alternative to lexicase selection, an analysis of its complexity discourages such use. Eqn.~\ref{eq:prob} has a worst-case complexity of $O(T^N)$ when all individuals are elite on $\mathcal{T}$. 
+Although it is tempting to pair Eqn.~\ref{eq:prob} with roulette wheel selection as an alternative to lexicase selection, an analysis of its complexity discourages such use. Eqn.~\ref{eq:prob} has a worst-case complexity of $O(T^N)$, which is exhibited when all individuals are elite on $\mathcal{T}$. 
 %Lexicase selection can be seen as a way to sample the expected probabilities of each individual by  on random orders of cases in $\mathcal{T}$, considering one at a time rather than branching to consider other combinations of cases that could result in selection for each individual in question. 
 
  
@@ -341,20 +350,17 @@ Although it is tempting to pair Eqn.~\ref{eq:prob} with roulette wheel selection
 
 Previous studies have suggested that the performance of lexicase selection is sensitive to the number of training cases~\citep{liskowski_comparison_2015}. In this section we develop the relation of population size and number of training cases to the performance of lexicase selection as a search driver. In part, this behavior is inherent to the design of the algorithm. However, this behavior is also linked to the fidelity with which lexicase selection samples the expected probabilities of selection for each individual in the population. 
 
-Concerning the number of training cases, the effectiveness of lexicase selection is expected to suffer when there are few training cases. When $T$ is small, there are very few ways in which individuals can be selected. For example, if $T$ = 2, an individual must be elite on one of these two cases to be selected. For continuous errors in which few individuals are elite, this means that very few individuals are likely to produce all of the children for the subsequent generation, leading to hyperselection~\citep{helmuth_impact_2016} and diversity loss. On the other hand, if many individuals solve both cases, selection becomes uniformly random. Because $\epsilon$-lexicase modulates the threshold for passing a case, it is likely to be more robust to fewer cases than lexicase selection since the case depth per selection event is likely to be higher.
+The effectiveness of lexicase selection is expected to suffer when there are few training cases. When $T$ is small, there are very few ways in which individuals can be selected. In an extreme case, if $T = 2$, an individual must be elite on one of these two cases to be selected. In fact, in this case individuals with at most 2 different error vectors will be selected. For continuous errors in which few individuals are elite, this means that very few individuals are likely to produce all of the children for the subsequent generation, leading to hyperselection~\citep{helmuth_impact_2016} and diversity loss. On the other hand, if many individuals solve both cases, selection becomes uniformly random. Because $\epsilon$-lexicase modulates the threshold for passing a case, it is likely to be more robust to smaller numbers of cases than lexicase selection since the case depth per selection event is likely to be higher.
 
-The population size is tied to selection behavior because lexicase selection conducts $N$ depth-first searches of the case orderings to choose $N$ parents. This implies that the value of $N$ determines the fidelity with which $P_{lex}$ is approximated via the sampling. Smaller populations will therefore produce poorer approximations of $P_{lex}$. We illustrate this in our example in \S\ref{s:ex}. Of course, this problem is not unique to lexicase selection; tournament selection also samples from an expected distribution and is affected by the number of tournaments~\citep{xie_another_2007}.  
+The population size is tied to selection behavior because lexicase selection uses $N$ different case orderings to choose $N$ parents. This implies that the value of $N$ determines the fidelity with which $P_{lex}$ is approximated via the sampling of the population by parent selection. Smaller populations will therefore produce poorer approximations of $P_{lex}$. We illustrate this in our example in \S\ref{s:ex}. Of course, this problem is not unique to lexicase selection; tournament selection also samples from an expected distribution and is affected by the number of tournaments~\citep{xie_another_2007}.  
 
-Both $N$ and $T$ affect how well the expected probabilities of selection derived from Eqn.~\ref{eq:prob} are approximated by lexicase selection. Consider the probability of a case being in at least one selection event in a generation. The probability of a case being in at least one selection event in a generation is one minus the probability of it not appearing, yielding
-
-
+Both $N$ and $T$ affect how well the expected probabilities of selection derived from Eqn.~\ref{eq:prob} are approximated by lexicase selection. Consider the probability of a case being in at least one selection event in a generation, which is one minus the probability of it not appearing, yielding
 \[Pr= 1 - \prod_{i=1}^N{\frac{(T-1)!}{T!(T-1-d_i)!}} \]
-
 Here, the case depth $d_i$ is the number of cases used to select a parent for selection event $i$. Because the case depth varies from selection to selection based on population semantics, this case probability is difficult to analyze. However, it can be simplified to consider the scenario in which a case appears {\it first} in selection. In fact, Eqn.~\ref{eq:prob} implies that a case in $\mathcal{K}_n$ influences the probability of selection of $n$ most heavily when it occurs first in a selection event. There are two reasons: first, the case has the potential to filter $N-1$ individuals, which is the strongest selection pressure it can apply. Second, a case's effect size is highest when selected first because it is not conditioned on the probability of selection of any other cases. Each subsequent case selection has a reduced effect on $P_{lex}$ of $\prod_{i=1}^d{\frac{1}{T-i}}$, where $d$ is the case depth. These observations also highlight the importance of the relative sizes of $N$ and $T$ because they affect the probability that a case will be observed at the top of a selection event in a given generation, which affects how closely Eqn.~\ref{eq:prob} is approximated. Let $P_{\text{first}}$ be the probability that a case will come first in a selection event {\it at least once} in a generation. Then
 \begin{equation}\label{eq:prob_case}
 P_{\text{first}} = 1 - \left(\frac{(T-1)}{T}\right)^N
 \end{equation}
-assuming $N$ selection events. This function is plotted for various values of $N$ and $T$ in Figure~\ref{fig:prob_first}, and illustrates that the probability of a case appearing first in selection drops as $T$ grows and as $N$ shrinks. For example, $P_{\text{first}} \approx 0.5$ when $N=1000$ and $T=1433$. We therefore expect the observed probabilities of selection for $n \in \mathcal{N}$ to differ from $P_{lex}(n)$ when $T >> N$, due to insufficient sampling of the cases. In the case of $N >> T$, we expect most cases to appear first and therefore the probability predictions made by Eqn.~\ref{eq:prob} to be more robust. 
+assuming $N$ selection events. This function is plotted for various values of $N$ and $T$ in Figure~\ref{fig:prob_first}, and illustrates that the probability of a case appearing first in selection drops as $T$ grows and as $N$ shrinks. For example, $P_{\text{first}} \approx 0.5$ when $N=1000$ and $T=1433$. We therefore expect the observed probabilities of selection for $n \in \mathcal{N}$ to differ from $P_{lex}(n)$ when $T >> N$, due to insufficient sampling of the cases. In the case of $N >> T$, we expect most cases to appear first and therefore the probability predictions made by Eqn.~\ref{eq:prob} to be more accurate to the actual selections. 
 
 \begin{figure}
 \centering
@@ -362,7 +368,7 @@ assuming $N$ selection events. This function is plotted for various values of $N
   \caption{The probability of a case occuring first in a selection event given $T$ training cases and $N$ selections.}\label{fig:prob_first}
 \end{figure}
 
-\subsection{Probabilities under tournament selection} We compare the probability of selection under lexicase selection to that using tournament selection with an indentical population and fitness structure. To do so we must first formulate the probability of selection for an individual undergoing tournament selection with $r$-size tournaments. The fitness ranks of $\mathcal{N}$ can be calculated, for example using MAE as fitness, with lower rank indicating better fitness. Let $S_i$ be the individuals in $\mathcal{N}$ with a fitness rank of $i$, and let $Q$ be the number of unique fitness ranks. \cite{xie_another_2007} showed that the probability of selecting an individual with rank $j$ in a single tournament is 
+\subsection{Probabilities under tournament selection} We compare the probability of selection under lexicase selection to that using tournament selection with an identical population and fitness structure. To do so we must first formulate the probability of selection for an individual undergoing tournament selection with size $r$ tournaments. The fitness ranks of $\mathcal{N}$ can be calculated, for example using MAE as fitness, with lower rank indicating better fitness. Let $S_i$ be the individuals in $\mathcal{N}$ with a fitness rank of $i$, and let $Q$ be the number of unique fitness ranks. \cite{xie_another_2007} showed that the probability of selecting an individual with rank $j$ in a single tournament is
 \begin{equation}\label{eq:prob_t}
 P_t = \frac{1}{|S_j|}\left( \left(\frac{\sum_{i=j}^Q{|S_i|}}{N}\right)^r - \left(\frac{\sum_{i=j+1}^Q{|S_i|}}{N}\right)^r \right)
 \end{equation}
