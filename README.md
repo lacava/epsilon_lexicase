@@ -8,7 +8,7 @@ todo:
  - [x] conclusions
  - [x] detailed read
  - [x] incorporate detailed read edits
- - [ ] incorporate lee's edits
+ - [x] incorporate lee's edits
  - [x] incorporate tom's edits: section 4 - 6
  - [ ] incorporate tom's edits: section 7 - 10
  
