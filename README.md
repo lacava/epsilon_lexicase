@@ -6,7 +6,9 @@ todo:
  - [x] experimental runs on all problems
  - [x] discussion
  - [x] conclusions
- - [ ] detailed read
- - [ ] incorporate detailed read edits
+ - [x] detailed read
+ - [x] incorporate detailed read edits
  - [ ] incorporate lee's edits
+ - [x] incorporate tom's edits: section 4 - 6
+ - [ ] incorporate tom's edits: section 7 - 10
  
