@@ -534,8 +534,9 @@ As a last note, when considered as objectives, the worst-case complexity of lexi
 
 
 \section{Illustrative Example}\label{s:ex}
+Here we apply the concepts from \S\ref{s:prob} to illustrate the probabilities of selection under different methods. An example population is presented in Table~\ref{tbl:ex2} featuring floating point errors, in contrast to Table~\ref{tbl:ex}. In this case, the population semantics are completely unique, although they result in the same mean error across the training cases, as shown in the ``Mean" column. As a result, tournament selection picks uniformly from among these individuals, resulting in equivalent probabilities of selection. As mentioned in \S\ref{s:prob}, with unique populations, lexicase selection is proportional to the number of cases for which an individual is elite. This leads lexicase selection to pick from among the four individuals that are elite on cases, i.e. $n_1$, $n_4$, $n_5$, and $n_9$, with respective probabilities 0.2, 0.2, 0.2, and 0.4. 
 
-\begin{table}
+\begin{table}[htb]
 \centering
 \scriptsize
 \caption{Example population with training case performances and selection probabilities according to the different algorithms.}\label{tbl:ex2}
@@ -555,8 +556,6 @@ $n_9$	&2.2	&	0.0	&	1.1	&	8.0	&	0.0 & 2.26	&	0.111	&	0.400	&	0.133	&	0.133	&	0.05
 $\epsilon$	&	0.9	& 0.9	&	0.9	&	2.0	& 2.0	&&&&&&\\ \bottomrule
 \end{tabularx}
 \end{table}
-
-Here we apply the concepts from \S\ref{s:prob} to illustrate the probabilities of selection under different methods. An example population is presented in Table~\ref{tbl:ex2} featuring floating point errors, in contrast to Table~\ref{tbl:ex}. In this case, the population semantics are completely unique, although they result in the same mean error across the training cases, as shown in the ``Mean" column. As a result, tournament selection picks uniformly from among these individuals, resulting in equivalent probabilities of selection. As mentioned in \S\ref{s:prob}, with unique populations, lexicase selection is proportional to the number of cases for which an individual is elite. This leads lexicase selection to pick from among the four individuals that are elite on cases, i.e. $n_1$, $n_4$, $n_5$, and $n_9$, with respective probabilities 0.2, 0.2, 0.2, and 0.4. 
 
 Due to its strict definition of elitism, lexicase selection does not account for the fact other individuals are very close to being elite on these cases as well; for example $n_2$ and $n_3$ are close to the elite error on case $t_1$. The $\epsilon$-lexicase variants address this as noted by the smoother distribution of selection probabilities among this population. We focus first on static $\epsilon$-lexicase selection. Applying the $\epsilon$ threshold to the errors yields the following discrete fitnesses:
 
