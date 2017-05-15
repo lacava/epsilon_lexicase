@@ -541,9 +541,9 @@ Here we apply the concepts from \S\ref{s:prob} to illustrate the probabilities o
 \scriptsize
 \caption{Example population with training case performances and selection probabilities according to the different algorithms.}\label{tbl:ex2}
 \rowcolors{1}{white}{LightCyan}
-\begin{tabularx}{\textwidth}{X|rrrrr|r|R{2em}R{2em}R{2em}R{2em}R{2em}}\toprule
-$\mathcal{N}$ & \multicolumn{5}{c}{Cases} & Mean & \multicolumn{5}{c}{Probability of Selection} \\
-& $e_1$ & $e_2$ & $e_3$ & $e_4$ & $e_5$ &&	tourn	&	lex	&	$\epsilon$ lex static	&	$\epsilon$ lex semi	&	$\epsilon$ lex dyn\\ \midrule
+\begin{tabularx}{0.75\textwidth}{X|rrrrr|r|R{2em}R{2em}R{2em}R{2em}R{2em}}\toprule
+$\mathcal{N}$ & \multicolumn{5}{c}{Cases} && \multicolumn{5}{c}{Probability of Selection} \\
+& $e_1$ & $e_2$ & $e_3$ & $e_4$ & $e_5$ & Mean &	tourn	&	lex	&	$\epsilon$ lex static	&	$\epsilon$ lex semi	&	$\epsilon$ lex dyn\\ \midrule
 $n_1$	&0.0	&	1.1	&	2.2	&	3.0	&	5.0 & 2.26	&	0.111	&	0.200	&	0.000	&	0.067	&	0.033\\ 
 $n_2$	&0.1	&	1.2	&	2.0	&	2.0	&	6.0 & 2.26	&	0.111	&	0.000	&	0.150	&	0.117	&	0.200\\ 
 $n_3$	&0.2	&	1.0	&	2.1	&	1.0	&	7.0 & 2.26	&	0.111	&	0.000	&	0.150	&	0.117	&	0.117\\ 
@@ -579,13 +579,15 @@ Semi-dynamic $\epsilon$-lexicase selection allows for all nine individuals to be
 
 Dynamic $\epsilon$-lexicase selection produces the most differentiated selection pressure for this example. Consider individual $n_8$ which is the most likely to be selected for this example. It is selected more often than $n_7$ or $n_9$ due to the adaptations to $\epsilon$ as the selection pool is winnowed. For example, $n_8$ is selected by case sequence $\{t_2,t_1,t_3\}$, for which the selection pool takes the following form after each case: $\{n_7, n_8, n_9\}, \{n_7, n_8\}, \{n_8\}$. Under the other semi-dynamic $\epsilon$-lexicase selection, $n_7$ and $n_8$ would not be removed by these cases due to the fixed nature of $\epsilon$ for those cases. 
 
-The expected probabilities of selection for the population in Table~\ref{tbl:ex2} are shown graphically in Figure~\ref{fig:prob} and visually confirms the similarities in probabilities of selection for the $\epsilon$-lexicase variants, especially semi-dynamic and dynamic variants. The expected probability of selection for semi-dynamic $\epsilon$-lexicase and tournament selection are compared to measured probabilities of selection in Figures~\ref{fig:prob_converge_eplex} and~\ref{fig:prob_converge_tourn}, respectively. 100 trials of a series of 500 selections are conducted, and the probabilities of selection are reported for each individual after each selection event. These figures illustrate that the probabilities of selection converge on the analytical predictions provided by Eqn.~\ref{eq:prob} and Eqn.~\ref{eq:prob_t}, but that the observed probability of selection is sensitive to the number of selection events for both selection methods. We use population sizes of 1000 in our experiments in \S\ref{s:exp}, which should provide adequate sampling to converge to approximately the expected probabilities of selection. 
+%The expected probabilities of selection for the population in Table~\ref{tbl:ex2} are shown graphically in Figure~\ref{fig:prob} and visually confirms the similarities in probabilities of selection for the $\epsilon$-lexicase variants, especially semi-dynamic and dynamic variants. 
+The expected probability of selection for semi-dynamic $\epsilon$-lexicase and tournament selection are compared to measured probabilities of selection in Figures~\ref{fig:prob_converge_eplex} and~\ref{fig:prob_converge_tourn}, respectively. 100 trials of a series of 500 selections are conducted, and the probabilities of selection are reported for each individual after each selection event. These figures illustrate that the probabilities of selection converge on the analytical predictions provided by Eqn.~\ref{eq:prob} and Eqn.~\ref{eq:prob_t}, but that the observed probability of selection is sensitive to the number of selection events for both selection methods. 
+%We use population sizes of 1000 in our experiments in \S\ref{s:exp}, which should provide adequate sampling to converge to approximately the expected probabilities of selection. 
 
-\begin{figure}
-\centering
-  \includegraphics[height = 0.4\textheight]{figs/probabilities.pdf}
-  \caption{A graphical representation of the probabilities of selection for the population in Table~\ref{tbl:ex2} according to different selection methods.}\label{fig:prob}
-\end{figure}
+%\begin{figure}
+%\centering
+%  \includegraphics[height = 0.4\textheight]{figs/probabilities.pdf}
+%  \caption{A graphical representation of the probabilities of selection for the population in Table~\ref{tbl:ex2} according to different selection methods.}\label{fig:prob}
+%\end{figure}
 
 
 \begin{figure}
@@ -609,6 +611,42 @@ The expected probabilities of selection for the population in Table~\ref{tbl:ex2
 
 \section{Experimental Analysis} \label{s:exp}
 In this section we empirically test the variants of $\epsilon$-lexicase selection introduced in \S\ref{s:eplex}. The problems studied in this section are listed in Table~\ref{tbl:regression}. We benchmark nine methods using eight different datasets. Six of the problems are available from the UCI repository~\citep{lichman_uci_2013}. The UBall5D problem is a simulated equation\footnote{UBall5D is also known as Vladislavleva-4.} which has the form \[ y = \frac{10}{5+\sum_{i=1}^5{(x_i-3)^2}}\] The Tower problem and UBall5D were chosen from the benchmark suite suggested by \cite{white_better_2012}. 
+\begin{table}
+\centering
+\scriptsize
+\caption{Regression problems used for method comparisons.}\label{tbl:regression}
+\begin{tabularx}{0.5\columnwidth}{X r r } \toprule
+Problem & Dimension & Samples \\ \midrule
+Airfoil & 5	& 1503 \\
+Concrete	& 	8	& 1030	\\
+%Crime	&	127	&	1993	\\
+ENC & 8 & 768 \\
+ENH & 8 & 768 \\
+Housing & 14 & 506 \\
+Tower & 25 & 3135 \\
+UBall5D & 5 & 6024 \\ 
+Yacht	& 6	&	309	\\ \midrule
+\end{tabularx}
+\end{table}
+
+\begin{table}
+\centering
+\scriptsize
+\caption{GP settings.}\label{tbl:symreg_settings}
+\begin{tabular}{lr} \toprule
+Setting& Value \\ \midrule
+Population size & 1000 \\
+Crossover / mutation & 60/40\% \\
+Program length limits & [3, 50] \\ 
+ERC range & [-1,1] \\
+Generation limit & 1000 \\
+Trials & 50 \\
+Terminal Set & \{$\mathbf{x}$, ERC, $+$, $-$, $*$, $/$, $\sin$, $\cos$, $\exp$, $\log$\}\\
+Elitism & keep best \\
+Fitness (non-lexicase methods) & MSE \\ \bottomrule
+\end{tabular}
+\end{table}
+
 
 We compare eight different selection methods: random selection, tournament selection, lexicase selection, age-fitness pareto optimization~\citep{schmidt_age-fitness_2011}, deterministic crowding~\citep{mahfoud_niching_1995}, and the three $\epsilon$-lexicase selection methods presented in \S\ref{s:eplex}. In addition to the selection methods that are benchmarked, we include a comparison to regularized linear regression using Lasso~\citep{tibshirani_regression_1996}. These methods are described briefly below, along with their abbreviations used in the results.
 \begin{itemize}
@@ -623,43 +661,13 @@ We compare eight different selection methods: random selection, tournament selec
 \item Lasso (lasso): this method incorporates a regularization penalty into least squares regression using an $\ell_1$ measure of the model coefficients and uses a tuning parameter, $\lambda$, to specify the weight of this regularization. We use a least angle regression~\citep{efron_least_2004} implementation of Lasso that automatically chooses $\lambda$ using cross validation.
 \end{itemize} 
 
-The settings for the GP system\footnote{available from \url{https://epistasislab.github.io/ellyn/}} are shown in Table~\ref{tbl:symreg_settings}. We conduct 50 trials of each method by training on a random partition of 70\% of the dataset and comparing the prediction error of the best model from each method on the other 30\% of the dataset. In addition to test error, we compare the training convergence of the GP-based methods, the semantic diversity of the populations during the run, and the number of cases used for selection for the lexicase methods. We calculate population diversity as the fraction of unique semantics in the population, i.e. 
-\begin{equation}\label{eq:diversity}
-\text{diversity}(\mathcal{N}) = \frac{1}{N^2}\sum_{i \in \mathcal{N}}{\sum_{j \in \mathcal{N}}{\mathbb{I}[\hat{y}(n_i) \neq \hat{y}(n_j)]}} 
-\end{equation}
-To compare the number of cases used in selection for the lexicase methods, we save the median number of cases used in selection events, i.e. the case depth, each generation. 
- 
-\begin{table}
-\scriptsize
-\caption{GP settings.}\label{tbl:symreg_settings}
-\begin{tabularx}{\columnwidth}{X R{0.57\columnwidth}} \toprule
-Setting& Value \\ \midrule
-Population size & 1000 \\
-Crossover / mutation & 60/40\% \\
-Program length limits & [3, 50] \\ 
-ERC range & [-1,1] \\
-Generation limit & 1000 \\
-Trials & 50 \\
-Terminal Set & \{$\mathbf{x}$, ERC, $+$, $-$, $*$, $/$, $\sin$, $\cos$, $\exp$, $\log$\}\\
-Elitism & keep best \\ \bottomrule
-\end{tabularx}
-\end{table}
-\begin{table}
-\scriptsize
-\caption{Regression problems used for method comparisons.}\label{tbl:regression}
-\begin{tabularx}{\columnwidth}{X r r } \toprule
-Problem & Dimension & Samples \\ \midrule
-Airfoil & 5	& 1503 \\
-Concrete	& 	8	& 1030	\\
-%Crime	&	127	&	1993	\\
-ENC & 8 & 768 \\
-ENH & 8 & 768 \\
-Housing & 14 & 506 \\
-Tower & 25 & 3135 \\
-UBall5D & 5 & 6024 \\ 
-Yacht	& 6	&	309	\\ \midrule
-\end{tabularx}
-\end{table}
+The settings for the GP system\footnote{available from \url{https://epistasislab.github.io/ellyn/}} are shown in Table~\ref{tbl:symreg_settings}. We conduct 50 trials of each method by training on a random partition of 70\% of the dataset and comparing the prediction error of the best model from each method on the other 30\% of the dataset. In addition to test error, we compare the training convergence of the GP-based methods, the semantic diversity of the populations during the run, and the number of cases used for selection for the lexicase methods. We calculate population diversity as the fraction of unique semantics in the population. To compare the number of cases used in selection for the lexicase methods, we save the median number of cases used in selection events, i.e. the case depth, each generation. 
+
+%\begin{equation}\label{eq:diversity}
+%\text{diversity}(\mathcal{N}) = \frac{1}{N}\sum_{n \in \mathcal{N}}{\mathbb{I}[\hat{y}(n) \neq \hat{y}(m) \; \forall \;m \in \mathcal{N}]}
+%\end{equation}
+
+
 
 
 %\begin{table}
@@ -691,7 +699,7 @@ Yacht	& 6	&	309	\\ \midrule
 
 
 \section{Results}\label{s:results}
-The boxplots in Figure~\ref{fig:boxplot_reg} show the test set MSE for each method on each problem. In the final subplot, we summarize the mean rankings of the methods on each trial of each problem to give a general comparison of performance. In general we find that the $\epsilon$-lexicase methods produce models with the best generalization performance across the tested problems. Random selection and Lasso tend to perform the worst on these problems. It is interesting to note the performance of Lasso on the Tower problem, which is better than on other datasets; ep-lex-sd and ep-lex-d are the only GP variants to significantly outperform it. For every problem, a variant of $\epsilon$-lexicase selection performs the best, and the three variants of it tend to perform similarly. In accordance with previous results~\citep{la_cava_epsilon-lexicase_2016}, lexicase selection performs worse than tournament selection for these continuous valued problems. In contrast with previous findings~\citep{schmidt_age-fitness_2011}, dc tends to outperform afp, although both methods perform better than tournament selection. 
+The boxplots in Figure~\ref{fig:boxplot_reg} show the test set MSE for each method on each problem. In the final subplot, we summarize the mean rankings of the methods on each trial of each problem to give a general comparison of performance. Ranks are calculated for each trial, and then averaged over all trials and problems to give an overall ranking comparison. In general we find that the $\epsilon$-lexicase methods produce models with the best generalization performance across the tested problems. Random selection and Lasso tend to perform the worst on these problems. It is interesting to note the performance of Lasso on the Tower problem, which is better than on other datasets; ep-lex-sd and ep-lex-d are the only GP variants to significantly outperform it. For every problem, a variant of $\epsilon$-lexicase selection performs the best, and the three variants of it tend to perform similarly. In accordance with previous results~\citep{la_cava_epsilon-lexicase_2016}, lexicase selection performs worse than tournament selection for these continuous valued problems. In contrast with previous findings~\citep{schmidt_age-fitness_2011}, dc tends to outperform afp, although both methods perform better than tournament selection. 
 
 The $\epsilon$-lexicase methods show a marked advantage in converging on a low training error in fewer generations compared to all other methods, as evidenced in Figure~\ref{fig:train}. Note Figure~\ref{fig:train} reports the normalized MSE values on the training set for the best individual in the population each generation. Again we observe very little difference between the $\epsilon$-lexicase variants. 
 
@@ -711,21 +719,21 @@ One of the motivations for introducing an $\epsilon$ threshold into lexicase sel
 \begin{figure}
 \centering
   \includegraphics[width=\textwidth]{figs/regression_training_error.pdf}\\
- \caption{Training error convergence for the best individual using different selection methods. The error bars represent 95\% confidence intervals over 50 trials.}
+ \caption{Training error for the best individual using different selection methods. The results are averaged over 50 trials with 95\% confidence intervals.}
 \label{fig:train}
 \end{figure}
 
 \begin{figure}
 \centering
   \includegraphics[width=\textwidth]{figs/regression_novelty.pdf}\\
- \caption{Behavioral diversity (Eqn.~\ref{eq:diversity}) of the population using different selection methods. The error bars represent 95\% confidence intervals over 50 trials.}
+ \caption{Behavioral diversity of the population using different selection methods. The results are averaged over 50 trials with 95\% confidence intervals.}
 \label{fig:diversity}
 \end{figure}
 
 \begin{figure}
 \centering
   \includegraphics[width=\textwidth]{figs/median_case_depth.pdf}\\
- \caption{Median case depths of selection each generation for the lexicase selection variants on the regression problems.}\label{fig:case_depth}
+ \caption{Median case depths of selection each generation for the lexicase selection variants on the regression problems. The results are averaged over 50 trials with 95\% confidence intervals. }\label{fig:case_depth}
 \end{figure}
 
 \label{tbl:tables===}
@@ -734,8 +742,29 @@ One of the motivations for introducing an $\epsilon$ threshold into lexicase sel
 
 \input{tbl_hsd}
 
+\subsection{Runtime analysis}
+In order to get an empirical sense of the time scaling of $epsilon$-lexicase selection in comparison to other selection methods, we run a set of experiments in which the population size is varied between 50 and 2000 while holding everything else constant. The same experiment is repeated while varying the number of samples instead. The results of the scaling experiment are shown in Figure~\ref{fig:time_pop} and 
+
+\begin{figure}
+\begin{minipage}{0.49\textwidth}
+\centering
+  \includegraphics[width=\textwidth]{figs/regression_popsize_scaling.pdf}\\
+ \caption{Scaling of wall-clock runtimes as a function of population size.}\label{fig:time_pop}
+ \end{minipage}
+ \hspace{0.02\textwidth}
+ \begin{minipage}{0.49\textwidth}
+ \centering
+  \includegraphics[width=\textwidth]{figs/regression_samples_scaling.pdf}\\
+ \caption{Scaling of wall-clock runtimes as a function of number of training cases.}\label{fig:time_samples}
+
+ \end{minipage}
+%\end{figure}
+%\begin{figure}
+
+\end{figure}
+
 \section{Discussion}\label{s:discuss}
-The experimental results show that $\epsilon$-lexicase selection performs well on the symbolic regression problems studied compared to other methods. $\epsilon$-lexicase leads to quicker learning on the training set (Figure~\ref{fig:train}), better test set performance (Figure~\ref{fig:boxplot_reg}), and high semantic diversity throughout training (Figure~\ref{fig:diversity}). The variants of $\epsilon$-lexicase do not vary significantly from each other over all tested problems, which suggests that the foundations of the method are robust to different definitions of $\epsilon$ as long as they result in higher leverage of case information during selection. With this in mind, we suggest semi-dynamic $\epsilon$-lexicase (ep-lex-sd, Algorithm 3.2) as the default implementation since it has the lowest mean test ranking and appears to utilize the most case information according to Figure~\ref{fig:case_depth}. 
+The experimental results show that $\epsilon$-lexicase selection performs well on the symbolic regression problems studied compared to other methods. $\epsilon$-lexicase leads to quicker learning on the training set (Figure~\ref{fig:train}) and better test set performance (Figure~\ref{fig:boxplot_reg}). The improvement in performance compared to traditional selection methods appears to be tied to the high semantic diversity that $\epsilon$-lexicase selection maintains throughout training (Figure~\ref{fig:diversity}). Two new variants of $\epsilon$-lexicase selection, semi-dynamic and dynamic, perform the best overall in our experiments. Still, the variants of $\epsilon$-lexicase do not differ significantly across all tested problems, which suggests that the foundations of the method are robust to different definitions of $\epsilon$ as long as they result in higher leverage of case information during selection compared to normal lexicase selection, which underperforms on regression problems. In view of the results, we suggest semi-dynamic $\epsilon$-lexicase (ep-lex-sd, Algorithm 3.2) as the default implementation of $\epsilon$-lexicase selection since it has the lowest mean test ranking and appears to utilize the most case information according to Figure~\ref{fig:case_depth}. 
  
 $\epsilon$-lexicase selection is a global pool, uniform random sequence, non-elitist version of lexicase selection~\citep{spector_assessment_2012}. Compared to traditional lexicase selection, which is elitist, $\epsilon$-lexicase selection represents a relaxed version of lexicase selection; other potential relaxations could show similar benefits. ``Global pool" means that each selection event begins with the entire population; however it is possible that smaller pools, perhaps defined geographically~\citep{spector_trivial_2006}, could improve performance on certain problems that respond well to relaxed selection pressure. Future work could also consider alternative orderings of test cases that may perform better than ``uniform random sequence" ordering that has been the focus of work thus far. For example, one could consider biasing the ordering of cases in some ways that could select parents with certain desired properties. \cite{liskowski_comparison_2015} attempted to use derived objective clusters as cases in lexicase selection, but found that this actually decreased performance, possibly due to the small number of resultant objectives. Still, there may be a form of ordering or case reduction that improves lexicase selection's performance over random shuffling.   
  
