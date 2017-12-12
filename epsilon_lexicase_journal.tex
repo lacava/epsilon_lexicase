@@ -66,6 +66,9 @@ urlcolor=black}
 
 \newtheorem{lex}{Theorem}[section]
 \newtheorem{defn}[lex]{Definition}
+
+\newcommand{\edit}[1]{{\color{red} #1}}
+
 %% ep lex
 %\newtheorem{ep-dom}{Definition}[section]
 %\newtheorem{ep-pareto}{Definition}[section]
@@ -148,8 +151,8 @@ To date, lexicase selection and $\epsilon$-lexicase selection have mostly been a
 
 The second purpose of this paper is to empirically assess the use of $\epsilon$-lexicase selection in continuous domains. In \S\ref{s:eplex}, we define two new variants of $\epsilon$-lexicase selection: semi-dynamic and dynamic, which are shown to improve the method compared to the original static implementation. A set of experiments compares variants of $\epsilon$-lexicase selection to several existing selection techniques on a set of real world benchmark problems. The results show that ability of $\epsilon$-lexicase selection to improve the predictive accuracy of models on these problems. We examine in detail the diversity of programs during these runs, as well as the number of cases used in selection events to validate our hypothesis that $\epsilon$-lexicase selection allows for more cases to be used when selecting individuals compared to lexicase selection. Lastly, the time complexity of lexicase is experimentally analyzed as a function of population size.    
 
-
-\section{Preliminaries}
+\section{Methods}
+\subsection{Preliminaries}
 In symbolic regression, we attempt to find a model $\hat{y}(\mathbf{x}): \mathbb{R}^d \rightarrow \mathbb{R}$ that maps variables to a target output using a set of $T$ training examples $\mathcal{T} = \{t_i = (y_i,\mathbf{x}_i)\}_{i=1}^T$, where $\mathbf{x}$ is a $d$-dimensional vector of variables, i.e. features, and $y$ is the desired output. We refer to elements of $\mathcal{T}$ as ``cases". GP poses the problem as
 \begin{equation} \label{eq:gp}
 \text{minimize} \hspace{0.5em} {f(n,\mathcal{T})} \hspace{1em} \text{subject to} \hspace{0.5em} {n \in \mathfrak{N}}
@@ -165,7 +168,7 @@ A typical fitness measure ($f$) is the mean squared error, $\text{MSE}(n,\mathca
 %
 %where $\mathbf{x} \in \mathbb{R}^D$ represents the variables or features, the target output is $y$ and $\hat{y}(i,\mathbf{x})$ is the program's output. As a result of the aggregation of the absolute error vector $e(i) = |y - \hat{y}(i,\mathbf{x})|$ in Eq.~(\ref{eq:fit}), the relationship of $\hat{y}$ to $y$ is represented crudely when choosing models to propagate.
 
-\section{Lexicase Selection}\label{s:lex}
+\subsection{Lexicase Selection}\label{s:lex}
 Lexicase selection is a parent selection technique based on lexicographic ordering of training (i.e. fitness) cases. The lexicase selection algorithm for a single selection event is presented below: 
 
 \medskip
@@ -223,7 +226,7 @@ $n_5$ & 0 & 3 & 5 & 2 & $\{t_1,t_4\}$ &	2.5		&	0.21	&	0.28	\\ \bottomrule
   \caption{A graphical representation of three parent selections using lexicase selection on the population in Table~\ref{tbl:ex}. The arrows indicate different selection paths through the training cases in circles. The boxes indicate the selection pool after the case performs its filtering. The diamonds show the individual selected by each selection event. Training cases in gray indicate that they have already been traversed by the current parent selection.}\label{fig:lex_graph}
 \end{figure}
 
-\section{{\large $\epsilon$}-Lexicase Selection}\label{s:eplex}
+\subsection{{\large $\epsilon$}-Lexicase Selection}\label{s:eplex}
 
 Lexicase selection has been shown to be effective in discrete error spaces, both for multi-modal problems~\citep{spector_assessment_2012} and for problems for which every case must be solved exactly to be considered a solution~\citep{helmuth_solving_2014, helmuth_general_2015-1}. In continuous error spaces, however, the requirement for individuals to be {\it exactly} equal to the elite error in the selection pool to pass a case turns out to be overly stringent~\citep{la_cava_epsilon-lexicase_2016}. In continuous error spaces and especially for symbolic regression with noisy datasets, it is unlikely for two individuals to have exactly the same error on any training case unless they are (or reduce to) equivalent models. As a result, lexicase selection is prone to conducting selection based on single cases, for which the selected individual satisfies $e_t \equiv e^*_t$, the minimum error on $t$ among $\mathcal{N}$. Selecting on single cases limits the ability of lexicase to leverage case information on subsets of test cases effectively, and can lead to poorer performance than traditional selection methods~\citep{la_cava_epsilon-lexicase_2016}. 
 
@@ -318,7 +321,7 @@ where $\mathbf{e}_t(\mathcal{S})$ is the vector of errors for case $t$ among the
 
 Since calculating $\epsilon$ according to Eqn.~\ref{eq:ep} is $O(N)$ for a single test case, the three $\epsilon$-lexicase selection algorithms share a worst-case complexity with lexicase selection of $O(TN^2)$ to select $N$ parents. As discussed in \S\ref{s:lex}, these worst-case time complexities are rare, and empirical results have confirmed $\epsilon$-lexicase to run within the same time frame as tournament selection~\citep{la_cava_epsilon-lexicase_2016}. We assess the affect of population size on wall-clock times in \S\ref{s:exp}. %, which has a time complexity of $O(TN)$. 
 
-\section{Related Work}\label{s:rw}
+\subsection{Related Work}\label{s:rw}
 
 Lexicase selection belongs to a class of GP systems that incorporate a program's full semantics directly into the search process, and as such shares a general motivation with recently proposed methods such as Geometric Semantic GP~\citep{moraglio_geometric_2012} and Behavioral GP~\citep{krawiec_behavioral_2014}, despite differing strongly in approach. Instead of incorporating the full semantics, a number of GP methods alter the fitness metric by weighting training cases based on population performance. In non-binary Implicit Fitness Sharing (IFS)~\citep{krawiec_implicit_2013}, for example, the fitness proportion of a case is scaled by the performance of other individuals on that case. Similarly, historically assessed hardness scales error on each training case by the success rate of the population~\citep{klein_genetic_2008}. Discovery of objectives by clustering (DOC)~\citep{krawiec_automatic_2015} clusters training cases by population performance, and thereby reduces training cases into a set of objectives used in multi-objective optimization. Both IFS and DOC were outperformed by lexicase selection on program synthesis and boolean problems in previous studies~\citep{helmuth_general_2015-1,liskowski_comparison_2015}. Other methods attempt to sample a subset of $\mathcal{T}$ to reduce computation time or improve performance, such as dynamic subset selection~\citep{gathercole_dynamic_1994}, interleaved sampling~\citep{goncalves_balancing_2013}, and co-evolved fitness predictors~\citep{schmidt_coevolution_2008}. Unlike these methods, lexicase selection begins each selection with the full set of training cases, and allows selection to adapt to program performance on them.
 
@@ -329,8 +332,8 @@ The conversion of a model's real-valued fitness into discrete values based on an
 
 Recent work has empirically studied and extended lexicase selection.~\cite{helmuth_impact_2016} found that extreme selection events in lexicase selection were not central to its performance improvements and that lexicase selection could re-diversify less-diverse populations unlike tournament selection~\citep{helmuth_effects_2016}. A survival-based version of $\epsilon$-lexicase selection has also been proposed~\citep{la_cava_general_2017,la_cava_ensemble_2017} for maintaining uncorrelated populations in an ensemble learning context. 
 
-
-\section{Expected Probabilities of Selection}\label{s:prob}
+\edit{\section{Theoretical Analysis}}
+\subsection{Expected Probabilities of Selection}\label{s:prob}
 The literature on lexicase selection has yet to analytically address the question: what is the probability of an individual being selected by lexicase selection, given its performance in a population on a set of training cases?  Put into words, the probability of $n$ being selected is the probability that a case $n$ passes is selected and: 1) $n$ is the only individual that passes the case; or 2) no more cases remain and $n$ is selected among the set of individuals that pass the selected case; or 3) $n$ is selected via the selection of another case that $n$ passes (repeating the process). 
 
 Formally, let $P_{lex}(n | \mathcal{N}, \mathcal{T})$ be the probability of $n \in \mathcal{N}$ being selected by lexicase selection. Let $\mathcal{K}_n(\mathcal{T},\mathcal{N}) = \{k_i\}_{i=1}^K \subseteq \mathcal{T}$ be the training cases from $\mathcal{T}$ for which individual $n$ is elite among $\mathcal{N}$. We will use $\mathcal{K}_n$ for brevity. Then the probability of selection under lexicase can be represented as a piece-wise recursive function: 
@@ -369,7 +372,7 @@ Although it is tempting to pair Eqn.~\ref{eq:prob} with roulette wheel selection
 %Lexicase selection can be seen as a way to sample the expected probabilities of each individual by  on random orders of cases in $\mathcal{T}$, considering one at a time rather than branching to consider other combinations of cases that could result in selection for each individual in question. 
 
  
-\subsection{Effect of Population and Training Set Size}
+\subsubsection{Effect of Population and Training Set Size}
 
 Previous studies have suggested that the performance of lexicase selection is sensitive to the number of training cases~\citep{liskowski_comparison_2015}. In this section we develop the relation of population size and number of training cases to the performance of lexicase selection as a search driver. In part, this behavior is inherent to the design of the algorithm. However, this behavior is also linked to the fidelity with which lexicase selection samples the expected probabilities of selection for each individual in the population. 
 
@@ -392,7 +395,7 @@ assuming $N$ selection events. This function is plotted for various values of $N
   \caption{The probability of a case occuring first in a selection event given $T$ training cases and $N$ selections.}\label{fig:prob_first}
 \end{figure}
 
-\subsection{Probabilities under tournament selection} We compare the probability of selection under lexicase selection to that using tournament selection with an identical population and fitness structure. To do so we must first formulate the probability of selection for an individual undergoing tournament selection with size $r$ tournaments. The fitness ranks of $\mathcal{N}$ can be calculated, for example using MAE as fitness, with lower rank indicating better fitness. Let $S_i$ be the individuals in $\mathcal{N}$ with a fitness rank of $i$, and let $Q$ be the number of unique fitness ranks. \cite{xie_another_2007} showed that the probability of selecting an individual with rank $j$ in a single tournament is
+\subsubsection{Probabilities under tournament selection} We compare the probability of selection under lexicase selection to that using tournament selection with an identical population and fitness structure. To do so we must first formulate the probability of selection for an individual undergoing tournament selection with size $r$ tournaments. The fitness ranks of $\mathcal{N}$ can be calculated, for example using MAE as fitness, with lower rank indicating better fitness. Let $S_i$ be the individuals in $\mathcal{N}$ with a fitness rank of $i$, and let $Q$ be the number of unique fitness ranks. \cite{xie_another_2007} showed that the probability of selecting an individual with rank $j$ in a single tournament is
 \begin{equation}\label{eq:prob_t}
 P_t = \frac{1}{|S_j|}\left( \left(\frac{\sum_{i=j}^Q{|S_i|}}{N}\right)^r - \left(\frac{\sum_{i=j+1}^Q{|S_i|}}{N}\right)^r \right)
 \end{equation}
@@ -424,7 +427,7 @@ In Table~\ref{tbl:ex}, the selection probabilities for the example population ar
 %&= \frac{1}{4} 
 %\end{align*}
 
-\section{Multi-objective Interpretation of Lexicase Selection}\label{s:mo}
+\subsection{Multi-objective Interpretation of Lexicase Selection}\label{s:mo}
 
 Objectives and training cases are fundamentally different entities: objectives define the goals of the task being learned, whereas cases are the units by which progress towards those objectives is measured. By this criteria, lexicase selection and multi-objective optimization have historically been differentiated~\citep{helmuth_general_2015}, although there is clearly a ``multi-objective'' interpretation of the behavior of lexicase selection with respect to the training cases. Let us assume for the remainder of this section that individual fitness cases are objectives to solve. The symbolic regression task then becomes a high-dimensional, many-objective optimization problem. At this scale, the most popular multi-objective methods (e.g. NSGA-II and SPEA-2) tend to perform poorly, a behavior that has been explained in literature~\citep{wagner_pareto-_2007, farina_optimal_2002}. \cite{farina_optimal_2002} point out two short-comings of these multi-objective methods when many objectives are considered: \begin{quote}
 the Pareto definition of optimality in a multi-criteria decision making problem can be unsatisfactory due to essentially two reasons: the number of improved or equal objective values is not taken into account, the (normalized) size of improvements is not taken into account.
@@ -532,8 +535,8 @@ As a last note, when considered as objectives, the worst-case complexity of lexi
 %
 %Interestingly, {\it if the population is unique}, this is the minimum complexity scenario for lexicase selection: in other words, if the semantics of the population are unique and all are non-dominated in $\mathcal{T}$, only case depth 1 selections will occur, giving a runtime complexity of $O(N^2)$. Of course, the population could also be non-dominated by being semantically identical, in which case the complexity would be $O(TN^2)$. The important thing to note is that lexicase selection, which rewards individuals for being diverse, also runs more quickly when the population is more diverse. 
 
-
-\section{Illustrative Example}\label{s:ex}
+\edit{\section{Experimental Analysis}}
+\subsection{Illustrative Example}\label{s:ex}
 Here we apply the concepts from \S\ref{s:prob} to consider the probabilities of selection under different methods on an example population. The goal of this section is to interweave the analyses of \S\ref{s:prob} and \S\ref{s:mo} to give an intuitive explanation of the differences between lexicase selection and the $\epsilon$-lexicase selection variants. 
 
 An example population is presented in Table~\ref{tbl:ex2} featuring floating point errors, in contrast to Table~\ref{tbl:ex}. In this case, the population semantics are completely unique, although they result in the same mean error across the training cases, as shown in the ``Mean" column. As a result, tournament selection picks uniformly from among these individuals, resulting in equivalent probabilities of selection. As mentioned in \S\ref{s:prob}, with unique populations, lexicase selection is proportional to the number of cases for which an individual is elite. This leads lexicase selection to pick from among the four individuals that are elite on cases, i.e. $n_1$, $n_4$, $n_5$, and $n_9$, with respective probabilities 0.2, 0.2, 0.2, and 0.4, according to Eqn.~\ref{eq:prob}. Note these four individuals are Pareto set boundaries. 
@@ -613,7 +616,7 @@ Dynamic $\epsilon$-lexicase selection produces the most differentiated selection
 
 
 
-\section{Experimental Analysis} \label{s:exp}
+\subsection{Regression Experiments} \label{s:exp}
 In this section we empirically test the variants of $\epsilon$-lexicase selection introduced in \S\ref{s:eplex}. The problems studied in this section are listed in Table~\ref{tbl:regression}. We benchmark nine methods using eight different datasets. Six of the problems are available from the UCI repository~\citep{lichman_uci_2013}. The UBall5D problem is a simulated equation\footnote{UBall5D is also known as Vladislavleva-4.} which has the form \[ y = \frac{10}{5+\sum_{i=1}^5{(x_i-3)^2}}\] The Tower problem and UBall5D were chosen from the benchmark suite suggested by \cite{white_better_2012}. 
 \begin{table}
 \centering
@@ -670,7 +673,7 @@ The settings for the GP system\footnote{available from \url{https://epistasislab
 %\begin{equation}\label{eq:diversity}
 %\text{diversity}(\mathcal{N}) = \frac{1}{N}\sum_{n \in \mathcal{N}}{\mathbb{I}[\hat{y}(n) \neq \hat{y}(m) \; \forall \;m \in \mathcal{N}]}
 %\end{equation}
-\subsection{Runtime analysis}
+\subsubsection{Runtime analysis}
 In order to get an empirical sense of the time scaling of $\epsilon$-lexicase selection in comparison to other selection methods, we run a set of experiments in which the population size is varied between 50 and 2000 while using a fixed training set of 100 samples from the UBall5D problem. We run 10 trials of each population size setting and compare the eight GP methods listed above. We use the results to estimate the time complexity of the $\epsilon$-lexicase selection variants as a function of population size. 
 
 
@@ -703,7 +706,7 @@ In order to get an empirical sense of the time scaling of $\epsilon$-lexicase se
 
 
 
-\section{Results}\label{s:results}
+\subsection{Results}\label{s:results}
 The boxplots in Figure~\ref{fig:boxplot_reg} show the test set MSE for each method on each problem. In the final subplot, we summarize the mean rankings of the methods on each trial of each problem to give a general comparison of performance. Ranks are calculated for each trial, and then averaged over all trials and problems to give an overall ranking comparison. In general we find that the $\epsilon$-lexicase methods produce models with the best generalization performance across the tested problems. Random selection and Lasso tend to perform the worst on these problems. It is interesting to note the performance of Lasso on the Tower problem, which is better than on other datasets; ep-lex-sd and ep-lex-d are the only GP variants to significantly outperform it. For every problem, a variant of $\epsilon$-lexicase selection performs the best, and the three variants of it tend to perform similarly. In accordance with previous results~\citep{la_cava_epsilon-lexicase_2016}, lexicase selection performs worse than tournament selection for these continuous valued problems. In contrast with previous findings~\citep{schmidt_age-fitness_2011}, dc tends to outperform afp, although both methods perform better than tournament selection. 
 
 The $\epsilon$-lexicase methods show a marked advantage in converging on a low training error in fewer generations compared to all other methods, as evidenced in Figure~\ref{fig:train}. Note Figure~\ref{fig:train} reports the normalized MSE values on the training set for the best individual in the population each generation. Again we observe very little difference between the $\epsilon$-lexicase variants. 
@@ -747,7 +750,7 @@ One of the motivations for introducing an $\epsilon$ threshold into lexicase sel
 \input{tbl_wilcox}
 
 \input{tbl_hsd}
-\subsection{Runtime analysis}
+\subsubsection{Runtime analysis}
 
 The results of the time complexity experiment are shown in Figure~\ref{fig:time_pop} as a log-log plot with wall-clock times on the y-axis and the population size on the x-axis. We estimate the time scaling as a function of population size by fitting a linear model to the log-transformed results, as $\log(\text{Runtime}(N)) = a + b \log(N)$, which gives $\text{Runtime}(N) = a N^b$. The linear models are shown in Figure~\ref{fig:time_pop} for the $\epsilon$-lexicase selection methods, which estimate the exponent of the complexity model, $b$, to be between 0.935 and 0.944. Therefore on average over these settings, the runtime of $\epsilon$-lexicase selection as a function of $N$ is approximately $\text{Runtime}(N) = 0.45 N^{0.939}$. This suggests a much lower time complexity with respect to $N$ in practice than the worst-case complexity of $N^2$ (see \S\ref{s:lex}). In general, the lexicase methods fall between deterministic crowding and tournament selection in terms of wall clock times, with afp achieving the lowest times at higher population sizes. All runtime differences between methods are well within an order of magnitude. 
 

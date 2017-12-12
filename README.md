@@ -1,14 +1,9 @@
-todo:
+# A probabilistic and multi-objective analysis of lexicase and epsilon-lexicase selection
 
- - [x] introduction
- - [x] related work
- - [x] plot probabilities of selection with lexicase and tournament selection versus number of selections
- - [x] experimental runs on all problems
- - [x] discussion
- - [x] conclusions
- - [x] detailed read
- - [x] incorporate detailed read edits
- - [x] incorporate lee's edits
- - [x] incorporate tom's edits: section 4 - 6
- - [ ] incorporate tom's edits: section 7 - 10
- 
+This repo contains the source files for reproducing the following paper and its experiments:
+
+La Cava, W., Helmuth, T., Spector, L., Moore, J.H. "A probabilistic and multi-objective analysis of 
+lexicase and epsilon-lexicase selection." *Evolutionary Computation Journal*, 2017.
+[arXiv](https://arxiv.org/abs/1709.05394)
+
+
