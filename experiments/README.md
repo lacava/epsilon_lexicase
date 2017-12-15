@@ -2,7 +2,7 @@
 
 This directory contains the code necessary to replicate the experiments in the paper. 
 
-**code**: The python scripts in code can be used with an LSF job scheduler to re-run various algorithm
+**code**: The python scripts in code can be used with an LSF job scheduler to re-run the algorithm
 comparisons. The GP runs use [ellyn](http://lacava.github.io/ellyn). 
 
 **data**: The data folder contains the results of the experiment. 
