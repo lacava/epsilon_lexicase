@@ -235,7 +235,7 @@ These observations led to the development of $\epsilon$-lexicase selection~\cite
 \begin{equation}\label{eq:ep}
 \epsilon_t = \text{median}(|\mathbf{e}_t - \text{median}(\mathbf{e}_t)|) = \lambda(\mathbf{e}_t)
 \end{equation}
-Defining $\epsilon$ according to Eqn.~\ref{eq:ep} allows the threshold to adapt to changing performance of the population on each training case. As performance across the population improves for a training case, $\epsilon$ shrinks, thereby modulating the selectivity of a case based on how difficult it is. We choose the median absolute deviation in lieu of the standard deviation statistic for calculating $\epsilon$ because it is more robust to outliers~\citep{pham-gia_mean_2001}. 
+\edit{Defining $\epsilon$ according to Eqn.~\ref{eq:ep} allows the threshold to conform to the performance of the population on each training case. As the performance on each training case improves across the population, $\epsilon$ shrinks, thereby modulating the selectivity of a case based on how difficult it is.} We choose the median absolute deviation in lieu of the standard deviation statistic for calculating $\epsilon$ because it is more robust to outliers~\citep{pham-gia_mean_2001}. 
 
 We study three implementations of $\epsilon$-lexicase selection in this paper: static, which is the version originally proposed~\citep{la_cava_epsilon-lexicase_2016}; semi-dynamic, in which the elite error is defined relative to the current selection pool; and dynamic, in which both the elite error and $\epsilon$ are defined relative to the current selection pool. 
 
