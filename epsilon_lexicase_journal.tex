@@ -113,7 +113,7 @@ urlcolor=black}
 %\address[hc]{School of Cognitive Science, Hampshire College, Amherst MA 01002}
 %
 \ecjHeader{x}{x}{xxx-xxx}{201X}{$\epsilon$-Lexicase selection}{W. La Cava}
-\title{\edit{A probabilistic and multi-objective analysis of lexicase and $\epsilon$-lexicase selection}}  
+\title{\edit{A probabilistic and multi-objective analysis of lexicase selection and $\epsilon$-lexicase selection}}  
 
 \author{\name{\bf William La Cava} \hfill \addr{lacava@upenn.edu}\\ 
         \addr{Institute for Bioinformatics, University of Pennsylvania, 
@@ -194,7 +194,7 @@ Lexicase selection is a parent selection technique based on lexicographic orderi
 }
 \end{algorithm}
 
-Algorithm~\ref{alg:lex} is very simple to implement because it consists of just a few steps: 1) choosing a case, 2) filtering the selection pool based on that case, and 3) repeating until the cases are exhausted or the selection pool is reduced to one individual. If the selection pool is not reduced by the time each case has been considered, an individual is chosen randomly from the remaining pool, $\mathcal{S}$. 
+Algorithm~\ref{alg:lex} consists of just a few steps: 1) choosing a case, 2) filtering the selection pool based on that case, and 3) repeating until the cases are exhausted or the selection pool is reduced to one individual. If the selection pool is not reduced by the time each case has been considered, an individual is chosen randomly from the remaining pool, $\mathcal{S}$. 
 
 Under lexicase selection, cases in $\mathcal{T}$ can be thought of as filters that reduce the selection pool to the individuals in the pool that are best on that case. Each parent selection event constructs a new path through these filters. We refer to individuals as ``passing" a case if they remain in the selection pool when the case is considered. The filtering strength of a case is affected by two main factors: its difficulty as defined by the number of individuals that the case filters from the selection pool, and its order in the selection event, which varies from selection to selection. These two factors are interwoven in lexicase selection because a case performs its filtering on a subset of the population created by a randomized sequence of cases that come before it. In other words, the difficulty of a case depends not only on the problem definition, but on the ordering of the case in the selection event, which is randomized for each selection.
 
