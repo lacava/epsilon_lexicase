@@ -233,7 +233,7 @@ Lexicase selection has been shown to be effective in discrete error spaces, both
 
 These observations led to the development of $\epsilon$-lexicase selection~\citep{la_cava_epsilon-lexicase_2016}, \edit{which modulates case filtering by calculating an $\epsilon$ threshold criteria for each training case.} Hand-tuned and automatic variants of $\epsilon$ were proposed and tested. The best performance was achieved by a 'parameter-less' version that defines $\epsilon$ according to the dispersion of errors in the population on each training case using the median absolute deviation statistic:  
 \begin{equation}\label{eq:ep}
-\epsilon_t = \text{median}(|\mathbf{e}_t - \text{median}(\mathbf{e}_t)|) = \lambda(\mathbf{e}_t)
+\epsilon_t = \lambda(\mathbf{e}_t) = \text{median}(|\mathbf{e}_t - \text{median}(\mathbf{e}_t)|) 
 \end{equation}
 \edit{Defining $\epsilon$ according to Eqn.~\ref{eq:ep} allows the threshold to conform to the performance of the population on each training case. As the performance on each training case improves across the population, $\epsilon$ shrinks, thereby modulating the selectivity of a case based on how difficult it is.} We choose the median absolute deviation in lieu of the standard deviation statistic for calculating $\epsilon$ because it is more robust to outliers~\citep{pham-gia_mean_2001}. 
 
@@ -242,7 +242,7 @@ We study three implementations of $\epsilon$-lexicase selection in this paper: s
 Static $\epsilon$-lexicase selection can be viewed as a preprocessing step added to lexicase selection in which the program errors are converted to pass/fail based on an $\epsilon$ threshold. This threshold is defined relative to $e^*_t$, the lowest error on test case $t$ over the entire population. We call this static $\epsilon$-lexicase selection because the elite error $e^*_t$ and $\epsilon$ are only calculated once per generation, instead of relative to the current selection pool, as described in Algorithm~\ref{alg:ep-lex-s}.
 
 \begin{algorithm}
-    \caption{{\bf Static $\epsilon$-Lexicase Selection} applied to individuals $n \in \mathcal{N}$ with errors $e_t(n)$ and minimum error $e_t^*$ on training cases $t \in \mathcal{T}$.}\label{alg:ep-lex-s}
+    \caption{{\bf Static $\epsilon$-Lexicase Selection} applied to individuals $n \in \mathcal{N}$ with errors $e_t(n)$ and minimum error $e_t^*$ on training cases $t \in \mathcal{T}$. $\lambda$ is the median absolute deviation function.}\label{alg:ep-lex-s}
 \noindent{\footnotesize
 \begin{tabularx}{\textwidth}{lX}
 %\multicolumn{2}{c}{\normalsize Algorithm~\ref{alg:ep-lex-s}: {Static $\epsilon$-Lexicase Selection}} \\ 
@@ -253,7 +253,7 @@ Static $\epsilon$-lexicase selection can be viewed as a preprocessing step added
 \hspace{1em}\hspace{1em}	\textbf{if} $e_t(n) \leq e^*_t + \epsilon_t$ \textbf{then} $f_t(n) \leftarrow 0$ \\
 \hspace{1em}\hspace{1em} \textbf{else} $f_t(n) \leftarrow 1$ \\ 
 \hspace{1em} \textbf{do} \texttt{ns} \textbf{times}: & \texttt{ns} is the number of selection events\\
-\hspace{1em}  \hspace{1em} $\mathcal{P} \leftarrow \mathcal{P} \; \cup $ \texttt{GetParent}($\mathcal{N,T},\epsilon,$ fitness) & add selected program to $\mathcal{P}$ \\
+\hspace{1em}  \hspace{1em} $\mathcal{P} \leftarrow \mathcal{P} \; \cup $ \texttt{GetParent}($\mathcal{N,T}$,$f$) & add selected program to $\mathcal{P}$ \\
 \\
 \texttt{GetParent}($\mathcal{N,T}$, $f$) 	:						&	\\
 \hspace{1em}	$\mathcal{T}' \leftarrow \mathcal{T}$	&	training cases\\
@@ -274,7 +274,7 @@ Static $\epsilon$-lexicase selection can be viewed as a preprocessing step added
 Semi-dynamic $\epsilon$-lexicase selection differs from static $\epsilon$-lexicase selection in that the pass condition is defined relative to the best error {\it among the pool} rather than among the entire population $\mathcal{N}$. In this way it behaves more similarly to standard lexicase selection (Algorithm~\ref{alg:lex}), except that individuals are filtered out only if they have error more than $e^*_t + \epsilon_t$. It is defined below:
 
 \begin{algorithm}
-\caption{{\bf Semi-dynamic $\epsilon$-Lexicase Selection} applied to individuals $n \in \mathcal{N}$ with errors $e_t(n)$ on training cases $t \in \mathcal{T}$.}\label{alg:ep-lex-sd}
+\caption{{\bf Semi-dynamic $\epsilon$-Lexicase Selection} applied to individuals $n \in \mathcal{N}$ with errors $e_t(n)$ on training cases $t \in \mathcal{T}$. $\lambda$ is the median absolute deviation function.}\label{alg:ep-lex-sd}
 \noindent{\footnotesize
 \begin{tabularx}{\textwidth}{lX}
 %\multicolumn{2}{c}{\normalsize Algorithm~\ref{alg:ep-lex-sd}: Semi-dynamic $\epsilon$-Lexicase Selection} \\ 
@@ -306,7 +306,7 @@ The final variant of $\epsilon$-lexicase selection is dynamic $\epsilon$-lexicas
 where $\mathbf{e}_t(\mathcal{S})$ is the vector of errors for case $t$ among the current selection pool $\mathcal{S}$. The dynamic $\epsilon$-lexicase selection algorithm is presented below:
 
 \begin{algorithm}
-\caption{{\bf Dynamic $\epsilon$-Lexicase Selection} applied to individuals $n \in \mathcal{N}$ with errors $e_t(n)$ on training cases $t \in \mathcal{T}$.}\label{alg:ep-lex-d}
+\caption{{\bf Dynamic $\epsilon$-Lexicase Selection} applied to individuals $n \in \mathcal{N}$ with errors $e_t(n)$ on training cases $t \in \mathcal{T}$. $\lambda$ is the median absolute deviation function.}\label{alg:ep-lex-d}
 \noindent{\footnotesize
 \begin{tabularx}{\textwidth}{lX}
 %\multicolumn{2}{c}{\normalsize Algorithm~\ref{alg:ep-lex-d}: Dynamic $\epsilon$-Lexicase Selection} \\ 
