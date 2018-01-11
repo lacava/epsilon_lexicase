@@ -198,7 +198,7 @@ Algorithm~\ref{alg:lex} consists of just a few steps: 1) choosing a case, 2) fil
 
 Under lexicase selection, cases in $\mathcal{T}$ can be thought of as filters that reduce the selection pool to the individuals in the pool that are best on that case. Each parent selection event constructs a new path through these filters. We refer to individuals as ``passing" a case if they remain in the selection pool when the case is considered. The filtering strength of a case is affected by two main factors: its difficulty as defined by the number of individuals that the case filters from the selection pool, and its order in the selection event, which varies from selection to selection. These two factors are interwoven in lexicase selection because a case performs its filtering on a subset of the population created by a randomized sequence of cases that come before it. In other words, the difficulty of a case depends not only on the problem definition, but on the ordering of the case in the selection event, which is randomized for each selection.
 
-Regarding case difficulty, consider two extreme examples: if a case is passed by the whole population, then it will perform no filtering, resulting in no selection pressure; on the other hand, if a case is passed by a single individual only, then that individual will be selected every time the case is considered for a selection pool containing the individual that passes it. This mechanism allows selective pressure to continually shift to individuals that are elite on cases that are not widely solved in $\mathcal{N}$. Because cases appear in various orderings during selection, there is selective pressure for individuals to solve unique {\it subsets} of cases. Lexicase selection thereby accounts not only for the difficulty of individual cases but the difficulty of solving arbitrarily-sized subsets of cases. This selection pressure leads to the preservation of high behavioral diversity during evolution~\citep{helmuth_effects_2016, la_cava_epsilon-lexicase_2016}. 
+\edit{The randomized case order and filtering} mechanisms allow selective pressure to continually shift to individuals that are elite on cases that are \edit{rarely} solved in $\mathcal{N}$. Because cases appear in various orderings during selection, there is selective pressure for individuals to solve unique {\it subsets} of cases. Lexicase selection thereby accounts for the difficulty of individual cases as well as the difficulty of solving arbitrarily-sized subsets of cases. This selection pressure leads to the preservation of high behavioral diversity during evolution~\citep{helmuth_effects_2016, la_cava_epsilon-lexicase_2016}. 
 
 The worst-case complexity of selecting $N$ parents per generation with $|\mathcal{T}| = T$ test cases is $O(TN^2)$. This running time stems from the fact that to select a single individual, lexicase selection may have to consider the error value of every individual on every test case.
 In contrast, tournament selection only needs to consider the precomputed fitnesses of a constant tournament size number of individuals; thus selecting a single parent can be done in constant time. Since errors need to be calculated and summed for every test case on every individual, tournament selection requires $O(TN)$ time to select $N$ parents.
@@ -651,11 +651,15 @@ Dynamic $\epsilon$-lexicase selection produces the most differentiated selection
 
 \subsection{Regression Experiments} \label{s:exp}
 In this section we empirically test the variants of $\epsilon$-lexicase selection introduced in \S\ref{s:eplex}. The problems studied in this section are listed in Table~\ref{tbl:regression}. We benchmark nine methods using eight different datasets. Six of the problems are available from the UCI repository~\citep{lichman_uci_2013}. The UBall5D problem is a simulated equation\footnote{UBall5D is also known as Vladislavleva-4.} which has the form \[ y = \frac{10}{5+\sum_{i=1}^5{(x_i-3)^2}}\] The Tower problem and UBall5D were chosen from the benchmark suite suggested by \cite{white_better_2012}. 
+
+
 \begin{table}
+\begin{minipage}{0.35\textwidth}
+
 \centering
 \scriptsize
 \caption{Regression problems used for method comparisons.}\label{tbl:regression}
-\begin{tabularx}{0.5\columnwidth}{X r r } \toprule
+\begin{tabularx}{\textwidth}{X r r } \toprule
 Problem & Dimension & Samples \\ \midrule
 Airfoil & 5	& 1503 \\
 Concrete	& 	8	& 1030	\\
@@ -667,13 +671,15 @@ Tower & 25 & 3135 \\
 UBall5D & 5 & 6024 \\ 
 Yacht	& 6	&	309	\\ \midrule
 \end{tabularx}
-\end{table}
+\end{minipage}
+\hspace{0.05\textwidth}
+\begin{minipage}{0.6\textwidth}
 
-\begin{table}
+%\begin{table}
 \centering
 \scriptsize
 \caption{GP settings.}\label{tbl:symreg_settings}
-\begin{tabular}{lr} \toprule
+\begin{tabularx}{\textwidth}{Xr} \toprule
 Setting& Value \\ \midrule
 Population size & 1000 \\
 Crossover / mutation & 60/40\% \\
@@ -684,8 +690,12 @@ Trials & 50 \\
 Terminal Set & \{$\mathbf{x}$, ERC, $+$, $-$, $*$, $/$, $\sin$, $\cos$, $\exp$, $\log$\}\\
 Elitism & keep best \\
 Fitness (non-lexicase methods) & MSE \\ \bottomrule
-\end{tabular}
+\end{tabularx}
+%\end{table}
+\end{minipage}
 \end{table}
+
+
 
 
 We compare eight different selection methods: random selection, tournament selection, lexicase selection, age-fitness pareto optimization~\citep{schmidt_age-fitness_2011}, deterministic crowding~\citep{mahfoud_niching_1995}, and the three $\epsilon$-lexicase selection methods presented in \S\ref{s:eplex}. In addition to the selection methods that are benchmarked, we include a comparison to regularized linear regression using Lasso~\citep{tibshirani_regression_1996}. These methods are described briefly below, along with their abbreviations used in the results.
@@ -824,7 +834,7 @@ In this paper we present a probabilistic and multi-objective analysis of lexicas
 In addition, we experimentally validate $\epsilon$-lexicase selection, including the new semi-dynamic and dynamic variants, on a set of real-world and synthetic symbolic regression problems. The results suggest that $\epsilon$-lexicase selection strongly improves the ability of GP to find accurate models. Further analysis of these runs show that lexicase variants maintain exceptionally high diversity during evolution, and that $\epsilon$-lexicase variants consider more cases per selection event than standard lexicase selection. The results validate our motivation for creating this variant of lexicase for continuous domains, and suggest the adoption of lexicase selection and variants of it in similar domains.  
 
 \section{Acknowledgments}
-This work was supported by the Warren Center for Network and Data Science at the University of Pennsylvania, as well as NIH grants P30-ES013508, AI116794 and LM009012. This material is based upon work supported by the National Science Foundation under Grants No. 1617087, 1129139 and 1331283. Any opinions, findings, and conclusions or recommendations expressed in this publication are those of the authors and do not necessarily reflect the views of the National Science Foundation.
+This work was supported by the Warren Center for Network and Data Science at UPenn, NIH grants P30-ES013508, AI116794 and LM009012, and NSF grants 1617087, 1129139 and 1331283. Any opinions, findings, and conclusions or recommendations expressed in this publication are those of the authors and do not necessarily reflect the views of the National Science Foundation.
 
 
 \bibliographystyle{apalike}
