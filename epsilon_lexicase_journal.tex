@@ -249,7 +249,7 @@ Static $\epsilon$-lexicase selection can be viewed as a preprocessing step added
 \texttt{Selection}($\mathcal{N,T}$, \texttt{ns}) 	:						&	\\
 \hspace{1em} $\mathcal{P} \leftarrow \emptyset$ & set of selected parents \\
     \hspace{1em}	$\epsilon \leftarrow \lambda$($\mathbf{e}_t$) \textbf{for} $t \in \mathcal{T}$	&	get $\epsilon$ for each case across population\\
-\hspace{1em}	\textbf{for}	 $t \in \mathcal{T}$ and $n \in \mathcal{N}$:	&	define fitness $f$ using within-$\epsilon$ pass condition\\
+\hspace{1em}	\textbf{for}	 $t \in \mathcal{T}$ \textbf{and} $n \in \mathcal{N}$:	&	define fitness $f$ using within-$\epsilon$ pass condition\\
 \hspace{1em}\hspace{1em}	\textbf{if} $e_t(n) \leq e^*_t + \epsilon_t$ \textbf{then} $f_t(n) \leftarrow 0$ \\
 \hspace{1em}\hspace{1em} \textbf{else} $f_t(n) \leftarrow 1$ \\ 
 \hspace{1em} \textbf{do} \texttt{ns} \textbf{times}: & \texttt{ns} is the number of selection events\\
@@ -280,7 +280,7 @@ Semi-dynamic $\epsilon$-lexicase selection differs from static $\epsilon$-lexica
 %\multicolumn{2}{c}{\normalsize Algorithm~\ref{alg:ep-lex-sd}: Semi-dynamic $\epsilon$-Lexicase Selection} \\ 
 \texttt{Selection}($\mathcal{N,T}$, \texttt{ns}) 	:						&	\\
 \hspace{1em} $\mathcal{P} \leftarrow \emptyset$ & set of selected parents \\
-\hspace{1em}	$\epsilon \leftarrow \lambda$($\mathbf{e}_t$) for $t \in \mathcal{T}$	&	get $\epsilon$ for each case across population\\
+\hspace{1em}	$\epsilon \leftarrow \lambda$($\mathbf{e}_t$) \textbf{for} $t \in \mathcal{T}$	&	get $\epsilon$ for each case across population\\
 \hspace{1em} \textbf{do} \texttt{ns} \textbf{times}: & \texttt{ns} is the number of selection events\\
 \hspace{1em}  \hspace{1em} $\mathcal{P} \leftarrow \mathcal{P} \; \cup $ \texttt{GetParent}($\mathcal{N,T},\epsilon$) & add selected program to $\mathcal{P}$ \\
 \\
