@@ -32,7 +32,8 @@ if len(sys.argv)>2:
     elif sys.argv[2] != 'all':
         problems = [sys.argv[2]]
 
-data_dir = '/home/lacava//data/regression/'
+data_dir = './datasets/'
+
 n_cores = 48
 for p in problems:
     print(p)
