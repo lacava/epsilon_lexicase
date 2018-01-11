@@ -1,0 +1,268 @@
+---
+title: "epsilon Lexicase regression benchmarks"
+author: "William La Cava"
+date: "February 23, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("/media/bill/Drive/Dropbox/Papers/epsilon_lexicase_journal/experiments/")
+
+```
+
+
+```{r overall results, echo=FALSE}
+
+box_results <- read.csv("data/all_results.txt",header=TRUE,sep='\t')
+
+box_results$method = factor(box_results$method,levels = c("lasso","rand","tournament","lex","afp","dc","ep-lex-static","ep-lex-semidynamic","ep-lex-dynamic"))
+library(plyr)
+box_results$method <- revalue(box_results$method, c("tournament"="tourn", "ep-lex-static"="ep-lex-s", "ep-lex-semidynamic"="ep-lex-sd","ep-lex-dynamic"="ep-lex-d"))
+summary(box_results,maxsum=40)
+
+# get rankings
+source('summarySE.R')
+box_results$mse_rank <- ave(box_results$mse, box_results$dataset, box_results$trial, FUN = function(x) rank(x, ties.method = "average"))
+box_results_rank_mean <- summarySE(box_results, measurevar="mse_rank", groupvars=c("method"))
+summary(box_results,maxsum=20)
+
+# plots
+library(ggplot2)
+library(RColorBrewer)
+colorCount = length(levels(box_results$method))
+getPalette = colorRampPalette(brewer.pal(colorCount, "Spectral"))
+
+# results
+p1 <- ggplot(box_results[box_results$dataset=='airfoil',],aes(x=method,y=mse,fill=method))+theme_bw()+geom_boxplot(outlier.shape=1,notch=TRUE,alpha=1.0)+theme(legend.title=element_blank(),axis.text.x = element_blank(),legend.position="none")+facet_wrap(~ dataset,scale="free_y")+labs(y="Test MSE",x="")+scale_fill_manual(values = getPalette(colorCount))
+p2 <- ggplot(box_results[box_results$dataset=='concrete',],aes(x=method,y=mse,fill=method))+theme_bw()+geom_boxplot(outlier.shape=1,notch=TRUE,alpha=1.0)+theme(legend.title=element_blank(),axis.text.x = element_blank(),legend.position="none")+facet_wrap(~ dataset,scale="free_y")+labs(y="Test MSE",x="")+scale_fill_manual(values = getPalette(colorCount))
+p3 <- ggplot(box_results[box_results$dataset=='enc',],aes(x=method,y=mse,fill=method))+theme_bw()+geom_boxplot(outlier.shape=1,notch=TRUE,alpha=1.0)+theme(legend.title=element_blank(),axis.text.x = element_blank(),legend.position="none")+facet_wrap(~ dataset,scale="free_y")+labs(y="Test MSE",x="")+scale_fill_manual(values = getPalette(colorCount))
+p4 <- ggplot(box_results[box_results$dataset=='enh',],aes(x=method,y=mse,fill=method))+theme_bw()+geom_boxplot(outlier.shape=1,notch=TRUE,alpha=1.0)+theme(legend.title=element_blank(),axis.text.x = element_blank(),legend.position="none")+facet_wrap(~ dataset,scale="free_y")+labs(y="Test MSE",x="")+scale_fill_manual(values = getPalette(colorCount))+coord_cartesian(ylim = c(0, 25))
+p5 <- ggplot(box_results[box_results$dataset=='housing',],aes(x=method,y=mse,fill=method))+theme_bw()+geom_boxplot(outlier.shape=1,notch=TRUE,alpha=1.0)+theme(legend.title=element_blank(),axis.text.x = element_blank(),legend.position="none")+facet_wrap(~ dataset,scale="free_y")+labs(y="Test MSE",x="")+scale_fill_manual(values = getPalette(colorCount))+coord_cartesian(ylim = c(10, 60))
+p6 <- ggplot(box_results[box_results$dataset=='tower',],aes(x=method,y=mse,fill=method))+theme_bw()+geom_boxplot(outlier.shape=1,notch=TRUE,alpha=1.0)+theme(legend.title=element_blank(),axis.text.x = element_blank(),legend.position="none")+facet_wrap(~ dataset,scale="free_y")+labs(y="Test MSE",x="")+scale_fill_manual(values = getPalette(colorCount))
+p7 <- ggplot(box_results[box_results$dataset=='uball5d',],aes(x=method,y=mse,fill=method))+theme_bw()+geom_boxplot(outlier.shape=1,notch=TRUE,alpha=1.0)+theme(legend.title=element_blank(),axis.text.x=element_text(angle=90,vjust=0.5,size=12),legend.position="none")+facet_wrap(~ dataset,scale="free_y")+labs(y="Test MSE",x="")+scale_fill_manual(values = getPalette(colorCount))
+p8 <- ggplot(box_results[box_results$dataset=='yacht',],aes(x=method,y=mse,fill=method))+theme_bw()+geom_boxplot(outlier.shape=1,notch=TRUE,alpha=1.0)+theme(legend.title=element_blank(),axis.text.x=element_text(angle=90,vjust=0.5,size=12),legend.position="none")+facet_wrap(~ dataset,scale="free_y")+labs(y="Test MSE",x="")+scale_fill_manual(values = getPalette(colorCount))+coord_cartesian(ylim = c(0, 125))
+
+
+r <- ggplot(box_results_rank_mean,aes(x=method,y=mse_rank,fill=method))+geom_bar(stat = "identity",position=position_dodge(width=0.75), colour="black",width=0.75)+geom_errorbar(aes(ymin=mse_rank-ci, ymax=mse_rank+ci), position=position_dodge(width=0.75),width=0.5)+theme_bw()+theme(legend.position="none",legend.title=element_blank(),axis.text.x=element_text(angle=90,vjust=0.5,size=12))+labs(y="Mean Ranking",x="")+labs(title="All Problems")+scale_fill_manual(values = getPalette(colorCount))
+
+(g <- gridExtra::grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, r, ncol=3,heights=c(1,1,1.2)))
+
+#ggsave("../figs/regression_boxplots.pdf",g,width=4*2,height=6*2,units="in",device=cairo_pdf)
+
+```
+
+Timing
+
+```{r timing, echo=FALSE}
+runtime <- read.csv("data/runtime_all.csv",header=TRUE,sep=',')
+runtime_s <- read.csv("data/runtime_samples.csv",header=TRUE,sep=',')
+
+runtime$method = factor(runtime$method,levels = c("rand","tourn","lex","afp","dc","ep-lex-s","ep-lex-sd","ep-lex-d"))
+runtime_s$method = factor(runtime_s$method,levels = c("rand","tourn","lex","afp","dc","ep-lex-s","ep-lex-sd","ep-lex-d"))
+
+# runtime_s = subset(runtime, popsize==100 & samples>10)
+runtime_p = subset(runtime, samples==100 & popsize>10)
+
+library(ggplot2)
+library(RColorBrewer)
+colorCount = length(levels(runtime$method))
+getPalette = colorRampPalette(brewer.pal(colorCount, "Spectral"))
+
+lm_eqn <- function(df,x,y){
+    m <- lm(log(y) ~ log(x), df);
+    eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+         list(a = format(coef(m)[1], digits = 2), 
+              b = format(coef(m)[2], digits = 3), 
+             r2 = format(summary(m)$r.squared, digits = 3)))
+    as.character(as.expression(eq));                 
+}
+
+# get summary data
+source('summarySE.R')
+MRT_samples <- summarySE(runtime_s, measurevar="time", groupvars=c("method","samples"))
+ep_lex_s <- subset(MRT_samples,method=='ep-lex-s')
+ep_lex_sd <- subset(MRT_samples,method=='ep-lex-sd')
+ep_lex_d <- subset(MRT_samples,method=='ep-lex-d')
+
+pd = position_dodge(0)
+#scaling by samples
+(t <- ggplot(MRT_samples,aes(x=samples,y=time,color=method,shape=method,group=method))+theme_bw()+geom_errorbar(aes(ymin=time-ci, ymax=time+ci), width=0.1,position=pd) +geom_line(position=pd) + geom_point(position=pd,size=3) 
++ annotate("text",label="ep-lex-s",x=100,y=50)+  annotate("text",x = 300, y = 50, label = lm_eqn(ep_lex_s,ep_lex_s$samples,ep_lex_s$time), parse = TRUE)
++ annotate("text",label="ep-lex-sd",x=100,y=45) +  annotate("text",x = 300, y = 45, label = lm_eqn(ep_lex_sd,ep_lex_sd$samples,ep_lex_sd$time), parse = TRUE) 
++ annotate("text",label="ep-lex-d",x=100,y=40)+  annotate("text",x = 300, y = 40, label = lm_eqn(ep_lex_d,ep_lex_d$samples,ep_lex_d$time), parse = TRUE) 
++theme(legend.title=element_blank(),legend.position="top",legend.text = element_text(size=14),axis.title = element_text(size=16))+labs(y="Runtime (seconds)",x="Samples (T)")+scale_x_log10(breaks=c(50,100,500,1000))+scale_y_log10(breaks=c(50,100,200))+scale_fill_manual(values = getPalette(colorCount))+scale_color_manual(values = getPalette(colorCount))+ scale_shape_manual(values = c(0, 1, 5, 8,4, 6, 2,11)) )
+
+#ggsave("../figs/regression_samples_scaling.pdf",t,width=4*1.5,height=4*1.5,units="in",device=cairo_pdf)
+
+# scaling by popsize
+MRT_popsize <- summarySE(runtime_p, measurevar="time", groupvars=c("method","popsize"))
+ep_lex_s <- subset(runtime_p,method=='ep-lex-s')
+ep_lex_sd <- subset(runtime_p,method=='ep-lex-sd')
+ep_lex_d <- subset(runtime_p,method=='ep-lex-d')
+
+(t2 <- ggplot(MRT_popsize,aes(x=popsize,y=time,color=method,shape=method,group=method))+theme_bw()+geom_errorbar(aes(ymin=time-ci, ymax=time+ci), width=0.15,position=pd) +geom_line(position=pd) + geom_point(position=pd,size=3)
++ annotate("text",label="ep-lex-s",x=60,y=1000) +  annotate("text",x = 100, y = 850, label = lm_eqn(ep_lex_s,ep_lex_s$popsize,ep_lex_s$time), parse = TRUE) 
++ annotate("text",label="ep-lex-sd",x=60,y=650)+  annotate("text",x = 100, y = 550, label = lm_eqn(ep_lex_sd,ep_lex_sd$popsize,ep_lex_sd$time), parse = TRUE) 
++ annotate("text",label="ep-lex-d",x=60,y=430) +  annotate("text",x = 100, y = 350, label = lm_eqn(ep_lex_d,ep_lex_d$popsize,ep_lex_d$time), parse = TRUE) 
++theme(legend.title=element_blank(),legend.position="top",legend.text = element_text(size=14),axis.title = element_text(size=16))+labs(y="Runtime (seconds)",x="Population Size (N)")+scale_x_log10(breaks=c(50,100,250, 500,1000,2000))+scale_y_log10()+scale_fill_manual(values = getPalette(colorCount))+scale_color_manual(values = getPalette(colorCount))+ scale_shape_manual(values = c(0, 1, 5, 8,4, 6, 2,11)) )
+
+#ggsave("../figs/regression_popsize_scaling.pdf",t2,width=4*1.5,height=4*1.5,units="in",device=cairo_pdf)
+```
+
+Stats
+
+```{r stats, echo=FALSE}
+methods = levels(box_results$method)
+problems = levels(factor(box_results$dataset))
+
+Ap = matrix(nrow=8,ncol=8)
+
+for (i in seq_along(problems)){
+  tmp = subset(box_results,dataset==problems[i])
+  tmp$dataset = factor(tmp$dataset)
+  tmp$method = factor(tmp$method,levels = c("lasso","rand","tourn","lex","afp","dc","ep-lex-s","ep-lex-d","ep-lex-sd"))
+  p = pairwise.wilcox.test(tmp$mse, g=tmp$method, p.adjust.method = "holm",paired = FALSE)
+  print(problems[i])
+  print(p)
+  Ap[i,] = p$p.value[8,]
+}
+rownames(Ap) = as.character(problems)
+colnames(Ap) = as.character(c(methods[0:7],methods[9]))
+write.table(signif(Ap,digits=3), row.names=as.character(problems), col.names=as.character(c(methods[0:7],methods[9])), sep = " & ", eol = "\\\\ \n", quote=F)
+df = data.frame(Ap)
+# function to format p values
+bold <- function(x) {  ifelse(x <0.05, paste0("{\\bf ", formatC(x, dig=2, format="e"), "}"),formatC(x, dig=2, format="g"))}
+print_AP = bold(Ap)
+cptn = "Significance test $p$-values comparing test MSE using the pair-wise Wilcoxon rank-sum test with Holm correction for multiple comparisons. All significance tests are conducted relative to semi-dynamic $\\epsilon$-lexicase (ep-lex-sd). Bold indicates $p<$ 0.05."
+#print xtable
+library(xtable)
+print(xtable(print_AP,label='tbl:wilcox', caption=cptn),size="\\footnotesize",caption.placement="top",booktabs=T, sanitize.text.function = function(x){x}, type="latex")
+#print(xtable(print_AP,label='tbl:wilcox', caption=cptn),size="\\footnotesize",caption.placement="top",booktabs=T, sanitize.text.function = function(x){x}, type="latex", file="../tbl_wilcox.tex" )
+
+source('friedman.r')
+colorCount = length(levels(box_results$method))
+getPalette = colorRampPalette(brewer.pal(colorCount, "Spectral"))
+
+rank_stats <- summarySE(box_results, measurevar="mse_rank", groupvars=c("dataset","method"))
+ggplot(rank_stats, aes(x=mse_rank,fill=method)) + geom_density(color="black",alpha=0.9)+scale_fill_manual(values = getPalette(colorCount)) #+geom_histogram(aes(y=..ncount..), position="dodge", binwidth=1, alpha=0.7)
+#+facet_wrap(~ method)#
+
+# sub_ranks <- subset(rank_stats, trials<)
+rank_stats$dataset = factor(rank_stats$dataset)
+rank_stats$method = factor(rank_stats$method)
+summary(rank_stats,maxsum=50)
+friedman.test(mse_rank ~ method | dataset, rank_stats)
+friedman.test.with.post.hoc(mse_rank ~ method | dataset, rank_stats,to.plot.parallel = F)
+
+#anova
+ajuste <- lm(mse_rank ~ method, data=rank_stats)
+summary(ajuste)
+anova(ajuste)
+
+rank_stats.aov = aov(mse_rank ~ method, data=rank_stats)
+print(rank_stats.aov)
+rank_stats.hsd=TukeyHSD(x=rank_stats.aov, 'method', conf.level=0.95)
+print_hsd <- data.frame(rank_stats.hsd$method)
+print_hsd$p.adj = bold(print_hsd$p.adj)
+library(xtable)
+cptn = "Post-hoc pairwise statistical tests of rankings across problems according to Tukey's Honest Significant Difference test. Bold values indicate $p<$ 0.05 with adjustment for multiple comparisons."
+
+hsd_tbl = matrix(nrow=3,ncol=8)
+column_names = levels(rank_stats$method)
+column_names = subset(column_names,column_names!="ep-lex-d")
+rownames(hsd_tbl) = c("ep-lex-s","ep-lex-sd","ep-lex-d")
+colnames(hsd_tbl) = column_names
+
+
+for (m1 in c("ep-lex-s","ep-lex-sd","ep-lex-d")){
+  i2=0
+  for (m2 in column_names){
+    if (m1 == "ep-lex-s"){
+      pair = paste0("ep-lex-s-",m2)
+      hsd_tbl[m1,m2] = print_hsd[pair,]$p.adj
+      print(pair)
+      print(print_hsd[pair,]$p.adj)
+    } 
+    if (m1 == "ep-lex-sd"){
+      pair = paste0("ep-lex-sd-",m2)
+      hsd_tbl[m1,m2] = print_hsd[pair,]$p.adj
+      print(pair)
+      print(print_hsd[pair,]$p.adj)
+    }
+    if (m1 == "ep-lex-d"){
+      pair = paste0("ep-lex-d-",m2)
+      hsd_tbl[m1,m2] = print_hsd[pair,]$p.adj
+      print(pair)
+      print(print_hsd[pair,]$p.adj)
+    }
+    i2 = i2+1
+  }
+}
+#print table
+print(xtable(hsd_tbl,caption=cptn,label='tbl:hsd'),caption.placement="top",booktabs=T, sanitize.text.function = function(x){x})
+#print(xtable(hsd_tbl,caption=cptn,label='tbl:hsd'),caption.placement="top",size="\\footnotesize", booktabs=T, sanitize.text.function = function(x){x}, type="latex", file="../tbl_hsd.tex")
+
+  
+```
+
+Convergence
+```{r data, echo=FALSE}
+
+conv_results = read.csv('data/data.all_data',header=TRUE,sep='\t')
+conv_results$method = factor(conv_results$method,levels = c("randsel","tournament","lex","afp","dc","ep-lex-static","ep-lex-semidynamic","ep-lex-dynamic"))
+conv_results$method <- revalue(conv_results$method, c("tournament"="tourn", "randsel"="rand", "ep-lex-static"="ep-lex-s", "ep-lex-semidynamic"="ep-lex-sd","ep-lex-dynamic"="ep-lex-d"))
+
+summary(conv_results,maxsum=50)
+library(ggplot2)
+library(RColorBrewer)
+colorCount = length(levels(conv_results$method))
+getPalette = colorRampPalette(brewer.pal(colorCount, "Spectral"))
+#as.numeric(levels(gen))[as.integer(gen)]
+pd <- position_dodge(10) # move them .05 to the left and right
+# get summary data
+source('summarySE.R')
+# training error
+
+TE <- summarySE(conv_results, measurevar="best_fit", groupvars=c("method","gen","dataset"))
+te <- ggplot(TE,aes(x=gen,y=best_fit,color=method,fill=method,shape=method,group=method))+theme_bw()+geom_errorbar(aes(ymin=best_fit-ci, ymax=best_fit+ci), width=100,position=pd) +geom_line(position=pd) + geom_point(position=pd,size=2.5) +facet_wrap(~ dataset,scale="free_y")+theme(legend.title=element_blank(),legend.position=c(0.85,0.175),legend.text = element_text(size=14),axis.title = element_text(size=16))+labs(x="Generations",y="Train MSE")+scale_fill_manual(values = getPalette(colorCount))+scale_color_manual(values = getPalette(colorCount))+ scale_shape_manual(values = c(0, 1, 5, 8,4, 6, 2,11))#
+te
+#ggsave("../figs/regression_training_error.pdf",te,width=6*2,height=4*2,units="in",device=cairo_pdf)
+
+# novelty
+N <- summarySE(conv_results, measurevar="novelty", groupvars=c("method","gen","dataset"))
+n <- ggplot(N,aes(x=gen,y=novelty,color=method,shape=method))+theme_bw()+scale_color_manual(values = getPalette(colorCount))+geom_errorbar(aes(ymin=novelty-ci, ymax=novelty+ci), width=100,position=pd) +geom_line(position=pd) + geom_point(position=pd,size=3,fill="white")+ facet_wrap(~ dataset,scale="free_y")+theme(legend.title=element_blank(),legend.position=c(0.85,0.175),legend.text = element_text(size=14),axis.title = element_text(size=16))+labs(x="Generations",y="Train MSE")+labs(x="Generations",y="Diversity")+  scale_shape_manual(values = c(0, 1, 5, 8,4, 6, 2,11))
+n
+#ggsave("../figs/regression_novelty.pdf",n,width=6*2,height=4*2,units="in",device=cairo_pdf)
+
+#lexicase stuff
+lexdata = read.csv('data/lex.all_data',header=TRUE,sep='\t')
+lexdata$method = factor(lexdata$method,levels = c("lex","ep-lex-static","ep-lex-semidynamic","ep-lex-dynamic"))
+lexdata$method <- revalue(lexdata$method, c("ep-lex-static"="ep-lex-s", "ep-lex-semidynamic"="ep-lex-sd","ep-lex-dynamic"="ep-lex-d"))
+lexreg = subset(lexdata,dataset=='airfoil' | dataset=='concrete' | dataset=='enc' | dataset=='enh' | dataset == 'housing' | dataset == 'tower' | dataset == 'uball5d' | dataset == 'yacht')
+colorCount = 9L
+# getPalette = colorRampPalette(brewer.pal(colorCount, "Spectral"))
+# set colors equal to the ones from other figures
+lex_colors = c("#FDAE61", "#ABDDA4", "#66C2A5", "#3288BD")
+# convert median lex cases to real case numbers
+lexreg$median_lex_cases[lexreg$dataset=='airfoil'] <- lexreg$median_lex_cases[lexreg$dataset=='airfoil']*1503*.7
+lexreg$median_lex_cases[lexreg$dataset=='concrete'] <- lexreg$median_lex_cases[lexreg$dataset=='concrete']*1030*.7
+lexreg$median_lex_cases[lexreg$dataset=='enc'] <- lexreg$median_lex_cases[lexreg$dataset=='enc']*768*.7
+lexreg$median_lex_cases[lexreg$dataset=='enh'] <- lexreg$median_lex_cases[lexreg$dataset=='enh']*768*.7
+lexreg$median_lex_cases[lexreg$dataset=='housing'] <- lexreg$median_lex_cases[lexreg$dataset=='housing']*506*.7
+lexreg$median_lex_cases[lexreg$dataset=='tower'] <- lexreg$median_lex_cases[lexreg$dataset=='tower']*3135*.7
+lexreg$median_lex_cases[lexreg$dataset=='uball5d'] <- lexreg$median_lex_cases[lexreg$dataset=='uball5d']*6024*.7
+lexreg$median_lex_cases[lexreg$dataset=='yacht'] <- lexreg$median_lex_cases[lexreg$dataset=='yacht']*309*.7
+
+MLC <- summarySE(lexreg, measurevar="median_lex_cases", groupvars=c("method","gen","dataset"))
+
+a <- ggplot(MLC,aes(x=gen,y=median_lex_cases,color=method,fill=method,shape=method))+theme_bw()+ geom_errorbar(aes(ymin=(median_lex_cases-ci)*1, ymax=(median_lex_cases+ci)*1), width=25) +geom_line(position=pd) +geom_point(position=pd,size=3)+facet_wrap(~ dataset,scale="free_y")+scale_fill_manual(values = lex_colors)+scale_color_manual(values = lex_colors)+theme(legend.position=c(0.8,0.2),legend.text = element_text(size=14),axis.title = element_text(size=16))+labs(y='Median Case Depth',x='Generations')+ scale_shape_manual(values = c(5, 6,2, 11))
+a
+#ggsave("../figs/median_case_depth.pdf",a,width=6*2,height=4*2,units="in",device=cairo_pdf)
+
+MLP <- summarySE(lexreg, measurevar="median_lex_pool", groupvars=c("method","gen","dataset"))
+b <- ggplot(MLP,aes(x=gen,y=median_lex_pool*100,color=method,fill=method,shape=method))+theme_bw()+ geom_errorbar(aes(ymin=(median_lex_pool-ci)*100, ymax=(median_lex_pool+ci)*100), width=25) +geom_line(position=pd) +geom_point(position=pd,size=3)+facet_wrap(~ dataset,scale="free_y")+scale_fill_manual(values = getPalette(colorCount))+scale_color_manual(values = getPalette(colorCount))+theme(legend.position=c(0.8,0.2))+labs(y='Median Final Pool Size (% Population)',x='Generations')+ scale_shape_manual(values = c(2,6,11,19))
+b
+#ggsave("../figs/median_lex_pool.pdf",c,width=4*2,height=4*2,units="in",device=cairo_pdf)
+
+```
