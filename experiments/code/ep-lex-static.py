@@ -74,14 +74,17 @@ def fit_est(i,train,test):
     # pdb.set_trace()
     # predict on test set
 
+    y_true = y[test]
+    y_pred = est.predict(X[test])
+
     if problem in scale_these:
-        test_mse = mean_squared_error(sc_y.inverse_transform(est.predict(X[test])),
-                                      sc_y.inverse_transform(y[test]))
-        test_r2 = r2_score(sc_y.inverse_transform(est.predict(X[test])),
-                                    sc_y.inverse_transform(y[test]))
+        test_mse = mean_squared_error(sc_y.inverse_transform(y_true),
+                                      sc_y.inverse_transform(y_pred))
+        test_r2 = r2_score(sc_y.inverse_transform(y_true),
+                                    sc_y.inverse_transform(y_pred))
     else:
-        test_mse = mean_squared_error(est.predict(X[test]),y[test])
-        test_r2 = r2_score(est.predict(X[test]),y[test])
+        test_mse = mean_squared_error(y_true,y_pred)
+        test_r2 = r2_score(y_true,y_pred)
 
     # print results
     out_text = '\t'.join([dataset.split('/')[-1][2:-4],
